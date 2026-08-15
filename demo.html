@@ -1,0 +1,2400 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>RF Imperium v5.0 MAX</title>
+<style>
+:root{
+  --bg0:#08090c; --bg1:#0f1117; --bg2:#161b22; --bg3:#21262d;
+  --blue:#58a6ff; --green:#22c55e; --red:#ef4444; --orange:#f97316;
+  --purple:#a78bfa; --yellow:#eab308; --cyan:#22d3ee;
+  --off:#ff4444; --def:#00e5ff; --sun:#d4af37;
+  --txt:#c9d1d9; --txtdim:#8b949e; --border:#2a2f38;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg0);color:var(--txt);
+  font-family:'Segoe UI',ui-sans-serif,system-ui,'Consolas',monospace;
+  height:100%;overflow:hidden;font-size:13px;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:var(--bg1);}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:#30363d;}
+*{scrollbar-width:thin;scrollbar-color:var(--bg3) var(--bg1);}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;}
+/* TOP BAR */
+#topbar{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#101319,#0b0d12);
+  border-bottom:1px solid var(--border);padding:5px 10px;flex-wrap:wrap;min-height:42px;}
+#logo{font-weight:800;font-size:15px;letter-spacing:1px;color:var(--blue);
+  text-shadow:0 0 8px rgba(88,166,255,.6);white-space:nowrap;}
+#logo span{color:var(--cyan);}
+#tabs{display:flex;gap:3px;flex:1;flex-wrap:wrap;}
+.tabbtn{background:var(--bg2);border:1px solid var(--border);color:var(--txtdim);
+  padding:5px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;
+  transition:.15s;white-space:nowrap;}
+.tabbtn:hover{color:var(--txt);border-color:#3a4048;}
+.tabbtn.active{color:#fff;background:var(--bg3);border-color:var(--blue);
+  box-shadow:0 0 10px rgba(88,166,255,.35);}
+.tabbtn.active[data-tab="ofensywa"]{border-color:var(--off);box-shadow:0 0 10px rgba(255,68,68,.4);}
+.tabbtn.active[data-tab="defensywa"]{border-color:var(--def);box-shadow:0 0 10px rgba(0,229,255,.4);}
+.tabbtn.active[data-tab="sun"]{border-color:var(--sun);box-shadow:0 0 10px rgba(212,175,55,.4);}
+.tabbtn.active[data-tab="sweep"]{border-color:var(--green);box-shadow:0 0 10px rgba(34,197,94,.4);}
+.tabbtn.active[data-tab="audio"]{border-color:var(--purple);box-shadow:0 0 10px rgba(167,139,250,.4);}
+.tabbtn.active[data-tab="mission"]{border-color:var(--orange);box-shadow:0 0 10px rgba(249,115,22,.4);}
+#statusbar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txtdim);flex-wrap:wrap;}
+.stat-item{display:flex;align-items:center;gap:4px;padding:3px 7px;background:var(--bg2);
+  border-radius:5px;border:1px solid var(--border);white-space:nowrap;}
+.led{width:8px;height:8px;border-radius:50%;background:#333;display:inline-block;}
+.led.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+.led.blink{animation:blink 1s infinite;}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:.25;}}
+.v-purple{color:var(--purple);font-weight:700;}
+.v-green{color:var(--green);font-weight:700;}
+.v-yellow{color:var(--yellow);font-weight:700;}
+.v-cyan{color:var(--cyan);font-weight:700;}
+.v-orange{color:var(--orange);font-weight:700;}
+.switch{position:relative;width:36px;height:19px;display:inline-block;}
+.switch input{opacity:0;width:0;height:0;}
+.slider-tog{position:absolute;cursor:pointer;inset:0;background:#3a3f47;border-radius:20px;transition:.2s;}
+.slider-tog:before{position:absolute;content:"";height:13px;width:13px;left:3px;bottom:3px;
+  background:#ccc;border-radius:50%;transition:.2s;}
+input:checked + .slider-tog{background:var(--green);}
+input:checked + .slider-tog:before{transform:translateX(17px);background:#fff;}
+/* CONTENT */
+#content{flex:1;overflow:hidden;position:relative;}
+.page{display:none;height:100%;overflow-y:auto;padding:10px;}
+.page.active{display:block;}
+.grid{display:grid;gap:10px;}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:10px;
+  display:flex;flex-direction:column;gap:6px;min-width:0;}
+.card h3{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--txtdim);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);
+  padding-bottom:6px;}
+.card h3 .ico{font-size:13px;}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.row.between{justify-content:space-between;}
+label{font-size:11px;color:var(--txtdim);}
+input[type=number],input[type=text],select{
+  background:var(--bg2);border:1px solid var(--border);color:var(--txt);
+  border-radius:5px;padding:4px 6px;font-size:12px;font-family:inherit;width:100%;}
+button{font-family:inherit;cursor:pointer;}
+input[type=range]{width:100%;accent-color:var(--blue);}
+input[type=checkbox]{accent-color:var(--blue);}
+.btn{background:var(--bg2);border:1px solid var(--border);color:var(--txt);
+  padding:5px 8px;border-radius:6px;font-size:11px;transition:.15s;white-space:nowrap;}
+.btn:hover{background:var(--bg3);border-color:var(--blue);}
+.btn.small{padding:3px 6px;font-size:10px;}
+.btn.blue{border-color:var(--blue);color:var(--blue);}
+.btn.green{border-color:var(--green);color:var(--green);}
+.btn.red{border-color:var(--red);color:var(--red);}
+.btn.orange{border-color:var(--orange);color:var(--orange);}
+.btn.purple{border-color:var(--purple);color:var(--purple);}
+.btn.cyan{border-color:var(--cyan);color:var(--cyan);}
+.btn.yellow{border-color:var(--yellow);color:var(--yellow);}
+.btn.active-on{background:var(--green);color:#04210f;border-color:var(--green);}
+.btn.active-red{background:var(--red);color:#fff;border-color:var(--red);}
+.stepbtns{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
+.presetgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.preset{background:var(--bg2);border:1px solid var(--border);color:var(--txtdim);
+  padding:5px 3px;border-radius:6px;font-size:10px;text-align:center;cursor:pointer;transition:.15s;}
+.preset:hover{border-color:var(--cyan);color:var(--cyan);}
+canvas{width:100%;display:block;background:#000;border-radius:6px;}
+#specCanvas{height:130px;}
+#waterfallCanvas{height:110px;}
+#iqCanvas{height:100px;width:100px;min-width:100px;max-width:100px;}
+#radarCanvas{height:140px;}
+#anomCanvas{height:90px;}
+#sigmapCanvas{height:200px;}
+#adsbRadar{height:120px;}
+#sweepCanvas{height:200px;}
+#audioWaveCanvas{height:80px;}
+#audioSpecCanvas{height:70px;}
+#snrHistCanvas{height:50px;}
+#hopCanvas{height:80px;}
+#anomTimelineCanvas{height:70px;}
+#sigTimeline{height:120px;}
+#heatmapCanvas{height:90px;}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;}
+.pill-idle{background:#2a2f38;color:#9aa3ad;}
+.pill-armed{background:rgba(249,115,22,.18);color:var(--orange);border:1px solid var(--orange);}
+.pill-active{background:rgba(239,68,68,.18);color:var(--red);border:1px solid var(--red);animation:pulse 1.2s infinite;}
+.pill-known{background:rgba(34,197,94,.18);color:var(--green);border:1px solid var(--green);}
+.pill-unknown{background:rgba(234,179,8,.18);color:var(--yellow);border:1px solid var(--yellow);}
+.pill-hostile{background:rgba(239,68,68,.18);color:var(--red);border:1px solid var(--red);}
+@keyframes pulse{0%,100%{box-shadow:0 0 4px currentColor;}50%{box-shadow:0 0 12px currentColor;}}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+table th{text-align:left;color:var(--txtdim);font-weight:600;padding:4px 5px;
+  border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg1);}
+table td{padding:4px 5px;border-bottom:1px solid rgba(255,255,255,.03);}
+table tr:hover td{background:rgba(255,255,255,.02);}
+.tablewrap{max-height:240px;overflow:auto;border-radius:6px;}
+.tablewrap.tall{max-height:380px;}
+.tablewrap.xl{max-height:480px;}
+tr.clickrow{cursor:pointer;}
+.bar-outer{background:var(--bg2);border-radius:6px;height:10px;overflow:hidden;border:1px solid var(--border);}
+.bar-inner{height:100%;border-radius:6px;transition:width .3s;}
+.dbm-meter{display:flex;flex-direction:column;gap:4px;}
+.dbm-bar-outer{height:14px;background:var(--bg2);border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.dbm-bar-inner{height:100%;background:linear-gradient(90deg,#22c55e,#eab308,#ef4444);width:30%;transition:width .15s;}
+.logbox{background:#000;border:1px solid var(--border);border-radius:6px;padding:6px;
+  font-family:'Consolas',monospace;font-size:11px;color:#7ee787;height:120px;overflow-y:auto;}
+.logbox.tall{height:200px;}
+.logbox .l-time{color:#6e7681;}
+.hexdump{background:#000;border:1px solid var(--border);border-radius:6px;padding:8px;
+  font-family:'Consolas',monospace;font-size:11px;color:#58a6ff;height:140px;overflow-y:auto;
+  white-space:pre-wrap;line-height:1.5;}
+.bitstream{background:#000;border:1px solid var(--border);border-radius:6px;padding:8px;
+  font-family:'Consolas',monospace;font-size:13px;letter-spacing:2px;height:60px;overflow:hidden;
+  word-break:break-all;line-height:1.6;}
+.console{background:#000;border:1px solid var(--border);border-radius:6px;padding:8px;
+  font-family:'Consolas',monospace;font-size:11px;color:#3fb950;height:160px;overflow-y:auto;}
+.field-preamble{color:var(--orange);}
+.field-sync{color:var(--yellow);}
+.field-devid{color:var(--cyan);}
+.field-payload{color:var(--green);}
+.field-crc{color:var(--red);}
+.shield-wrap{display:flex;align-items:center;justify-content:center;padding:4px 0;}
+.threat-item{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:6px;
+  background:var(--bg2);border-left:3px solid var(--border);font-size:11px;}
+.rule-item{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:5px 7px;border-radius:6px;background:var(--bg2);font-size:11px;}
+.quote-box{background:linear-gradient(160deg,#12100a,#0d0c08);border:1px solid var(--sun);
+  border-radius:12px;padding:20px;text-align:center;box-shadow:0 0 24px rgba(212,175,55,.15) inset;
+  transition:opacity .5s;}
+.quote-box .cn{font-size:22px;color:var(--sun);margin-bottom:8px;}
+.quote-box .pl{font-size:14px;color:#eee;font-style:italic;margin-bottom:8px;}
+.quote-box .ctx{font-size:11px;color:var(--txtdim);}
+.protocard{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;
+  display:flex;flex-direction:column;gap:3px;}
+.protocard .pt{font-weight:700;color:var(--cyan);font-size:12px;}
+.protocard .pf{font-size:10px;color:var(--txtdim);}
+.blockdiagram{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.blockbox{background:var(--bg2);border:1px solid var(--blue);border-radius:6px;padding:6px 10px;
+  font-size:10px;color:var(--blue);text-align:center;}
+.blockarrow{color:var(--txtdim);font-size:14px;}
+.grid-analiza{grid-template-columns: 2fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-5{grid-template-columns:repeat(5,1fr);}
+@media(max-width:1100px){.grid-analiza{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.grid-4{grid-template-columns:repeat(2,1fr);}.grid-5{grid-template-columns:repeat(2,1fr);}}
+.cardsgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:1200px){.cardsgrid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:700px){.cardsgrid{grid-template-columns:1fr;}}
+.mini-label{font-size:10px;color:var(--txtdim);}
+.kvrow{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;}
+.kvrow b{color:var(--txt);}
+.opsec-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:var(--bg2);font-size:11px;}
+.mission-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:var(--bg2);border-left:3px solid var(--border);font-size:11px;}
+.sun-chapter{display:flex;gap:10px;padding:6px 8px;border-radius:6px;background:var(--bg2);font-size:11px;align-items:flex-start;}
+.sun-chapter .ch-num{color:var(--sun);font-weight:800;min-width:24px;}
+.audio-channel{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;
+  border-radius:6px;background:var(--bg2);font-size:11px;cursor:pointer;border:1px solid var(--border);}
+.audio-channel:hover{border-color:var(--purple);color:var(--purple);}
+.wl-item{display:flex;align-items:center;justify-content:space-between;gap:6px;
+  padding:4px 8px;border-radius:5px;background:var(--bg2);font-size:11px;}
+.fade-in{animation:fadeIn .5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- TOP BAR -->
+<div id="topbar">
+  <div id="logo">RF IMPERIUM <span>v5.0 MAX</span></div>
+  <div id="tabs">
+    <button class="tabbtn active" data-tab="analiza" onclick="showTab('analiza')">📊 ANALIZA</button>
+    <button class="tabbtn" data-tab="ofensywa" onclick="showTab('ofensywa')">⚔️ OFENSYWA</button>
+    <button class="tabbtn" data-tab="defensywa" onclick="showTab('defensywa')">🛡 DEFENSYWA</button>
+    <button class="tabbtn" data-tab="dekoder" onclick="showTab('dekoder')">🔬 DEKODER</button>
+    <button class="tabbtn" data-tab="sigint" onclick="showTab('sigint')">🧠 SIGINT</button>
+    <button class="tabbtn" data-tab="protokoly" onclick="showTab('protokoly')">📡 PROTOKOŁY</button>
+    <button class="tabbtn" data-tab="sweep" onclick="showTab('sweep')">🔍 SWEEP</button>
+    <button class="tabbtn" data-tab="audio" onclick="showTab('audio')">🔊 AUDIO</button>
+    <button class="tabbtn" data-tab="mission" onclick="showTab('mission')">🎯 MISJA</button>
+    <button class="tabbtn" data-tab="sun" onclick="showTab('sun')">☯ SZTUKA WOJNY</button>
+  </div>
+  <div id="statusbar">
+    <div class="stat-item"><span class="led on blink" id="ledMain"></span>&nbsp;<span id="hstat" style="color:var(--green)">AKTYWNY</span></div>
+    <div class="stat-item">Lat: <span class="v-purple" id="latVal">--ms</span></div>
+    <div class="stat-item">Sp/s: <span class="v-green" id="spsVal">0</span></div>
+    <div class="stat-item">SNR: <span class="v-yellow" id="snrVal">--dB</span></div>
+    <div class="stat-item">PKT: <span class="v-cyan" id="pktVal">0</span></div>
+    <div class="stat-item">THR: <span id="thrVal" style="color:var(--red)">0</span></div>
+    <div class="stat-item" id="clockVal">--:--:--</div>
+    <div class="stat-item">
+      MEAS <label class="switch"><input type="checkbox" id="meas-toggle-input" checked onchange="toggleMeas()"><span class="slider-tog"></span></label>
+    </div>
+  </div>
+</div>
+
+<div id="content">
+
+<!-- ============ TAB: ANALIZA ============ -->
+<div class="page active" id="page-analiza">
+  <div class="grid grid-analiza">
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+      <div class="card">
+        <h3><span class="ico">📶</span> Widmo RF <span class="pill pill-idle" id="rxPill" style="margin-left:auto;">IDLE</span></h3>
+        <canvas id="specCanvas"></canvas>
+        <canvas id="waterfallCanvas"></canvas>
+        <div class="row between" style="margin-top:4px;">
+          <div class="dbm-meter" style="flex:1;">
+            <div class="row between"><label>Sygnałomierz</label><b id="dbmVal">-95.0 dBm</b></div>
+            <div class="dbm-bar-outer"><div class="dbm-bar-inner" id="dbmBar"></div></div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn yellow small" onclick="autoTune()">⚡ Auto-Tune</button>
+            <button class="btn green" id="rxBtn" onclick="toggleRx()" style="font-size:13px;font-weight:800;padding:8px 18px;">▶ START RX</button>
+          </div>
+        </div>
+        <div class="row between">
+          <label>Ref Level (dBm)</label>
+          <input type="range" id="refLevel" min="-120" max="-20" value="-20" style="flex:1;margin:0 8px;">
+          <span class="mini-label" id="refLevelVal">-20</span>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <h3><span class="ico">📐</span> IQ Konstelacja</h3>
+          <div style="display:flex;justify-content:center;">
+            <canvas id="iqCanvas" style="width:100px;height:100px;min-width:100px;"></canvas>
+          </div>
+          <div class="mini-label" id="iqModType" style="text-align:center;">Mod: BPSK</div>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🎙️</span> IQ Recorder</h3>
+          <label>Format</label>
+          <select id="iqFormat"><option>SigMF</option><option>RAW cs8</option><option>WAV</option><option>CF32</option></select>
+          <label>Folder</label><input type="text" id="iqFolder" value="/captures/rf_imperium/">
+          <label>Max MB: <span id="iqRecMbLbl">0 / 512</span></label>
+          <div class="bar-outer"><div class="bar-inner" id="iqRecBar" style="width:0%;background:var(--red);"></div></div>
+          <button class="btn red" id="iqRecBtn" onclick="toggleRec()">⏺ REC</button>
+        </div>
+        <div class="card">
+          <h3><span class="ico">💾</span> Eksport</h3>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <button class="btn blue" onclick="exportAction('PNG Screenshot')">📷 PNG</button>
+            <button class="btn green" onclick="exportAction('CSV widma')">📄 CSV</button>
+            <button class="btn purple" onclick="exportAction('SigMF')">🗂 SigMF</button>
+            <button class="btn orange" onclick="exportAction('PDF raportu')">📑 PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3><span class="ico">📈</span> Historia SNR</h3>
+          <canvas id="snrHistCanvas"></canvas>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📍</span> Markery pomiarowe</h3>
+          <div id="markerList" style="display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">📜</span> Log zdarzeń</h3>
+        <div class="logbox tall" id="eventLog"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+      <div class="card">
+        <h3><span class="ico">📻</span> Częstotliwość</h3>
+        <input type="number" id="freqInput" value="433920000" onchange="setFreqFromInput()">
+        <label class="mini-label">Hz — aktualnie: <b id="freqDisplay">433.920 MHz</b></label>
+        <div class="stepbtns">
+          <button class="btn small" onclick="stepFreq(-1000000000)">-1G</button>
+          <button class="btn small" onclick="stepFreq(-1000000)">-1M</button>
+          <button class="btn small" onclick="stepFreq(-1000)">-1k</button>
+          <button class="btn small" onclick="stepFreq(-100)">-100</button>
+          <button class="btn small" onclick="stepFreq(-1)">-1</button>
+          <button class="btn small" onclick="stepFreq(1)">+1</button>
+          <button class="btn small" onclick="stepFreq(100)">+100</button>
+          <button class="btn small" onclick="stepFreq(1000)">+1k</button>
+          <button class="btn small" onclick="stepFreq(1000000)">+1M</button>
+          <button class="btn small" onclick="stepFreq(1000000000)">+1G</button>
+        </div>
+        <div class="presetgrid" id="presetGrid"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">🎚️</span> Wzmocnienia</h3>
+        <label>LNA Gain: <b id="lnaVal">16</b> dB</label>
+        <input type="range" id="lnaGain" min="0" max="40" step="8" value="16" oninput="updateGainLabels()">
+        <label>VGA Gain: <b id="vgaVal">20</b> dB</label>
+        <input type="range" id="vgaGain" min="0" max="62" step="2" value="20" oninput="updateGainLabels()">
+        <label>TX VGA: <b id="txvgaVal">10</b> dB</label>
+        <input type="range" id="txvgaGain" min="0" max="47" step="1" value="10" oninput="updateGainLabels()">
+        <label><input type="checkbox" id="ampEnable"> Amp +14dB</label>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">🧮</span> DSP</h3>
+        <label>Sample Rate</label>
+        <select id="sampleRate">
+          <option>250k</option><option>1M</option><option selected>2M</option>
+          <option>4M</option><option>8M</option><option>10M</option><option>20M</option>
+        </select>
+        <label>Demodulacja</label>
+        <select id="demodType">
+          <option>AM</option><option>FM</option><option>WBFM</option><option>USB</option>
+          <option>LSB</option><option>CW</option><option>OOK</option><option>FSK</option><option>LoRa</option>
+        </select>
+        <label>FFT size</label>
+        <select id="fftSize">
+          <option>512</option><option selected>1024</option><option>2048</option>
+          <option>4096</option><option>8192</option>
+        </select>
+        <label>Window</label>
+        <select id="fftWindow"><option selected>Hann</option><option>Hamming</option><option>Blackman</option><option>Flat-top</option></select>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">⚙️</span> Urządzenie</h3>
+        <div class="kvrow"><span>Model</span><b>HackRF One</b></div>
+        <div class="kvrow"><span>Serial</span><b id="devSerial">DEMO-FFFF</b></div>
+        <div class="kvrow"><span>Firmware</span><b>2024.02.1</b></div>
+        <div class="kvrow"><span>Temp</span><b id="devTemp">--°C</b></div>
+        <div class="kvrow"><span>USB</span><b style="color:var(--green)">3.0 HS</b></div>
+        <button class="btn cyan" onclick="connectDevice()">🔌 Połącz urządzenie</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: OFENSYWA ============ -->
+<div class="page" id="page-ofensywa">
+  <div class="cardsgrid">
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">📛</span> RF Jammer <span class="pill pill-idle" id="pill-jammer" style="margin-left:auto;">IDLE</span></h3>
+      <label>Częstotliwość celu (MHz)</label><input type="number" id="jam-freq" value="433.92">
+      <label>Szerokość pasma (kHz)</label><input type="number" id="jam-bw" value="200">
+      <label>Moc TX: <span id="jam-power-val">50</span>%</label>
+      <input type="range" id="jam-power" min="0" max="100" value="50" oninput="document.getElementById('jam-power-val').textContent=this.value">
+      <label>Typ szumu</label>
+      <select><option>Gaussian</option><option>Swept</option><option>Pulsed</option></select>
+      <button class="btn red" onclick="fireOff('jammer')">▶ URUCHOM JAMMER</button>
+      <div class="mini-label" id="jam-counter">Czas aktywny: 0s</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🎭</span> Signal Spoofer <span class="pill pill-idle" id="pill-spoofer" style="margin-left:auto;">IDLE</span></h3>
+      <label>Typ sygnału</label>
+      <select id="spoof-type"><option>GPS L1 C/A</option><option>ADS-B</option><option>TPMS</option><option>Keyfob 433</option><option>Keyfob 315</option></select>
+      <label>Parametry (lat,lon lub ID)</label>
+      <input type="text" id="spoof-param" value="50.06,19.94">
+      <label>Moc TX: <span id="spoof-pwr-val">30</span>%</label>
+      <input type="range" min="0" max="100" value="30" oninput="document.getElementById('spoof-pwr-val').textContent=this.value">
+      <button class="btn red" onclick="fireOff('spoofer')">▶ SPOOF</button>
+      <div class="mini-label" id="spoofer-counter">Wysłano pakietów: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🔁</span> Replay Attack <span class="pill pill-idle" id="pill-replay" style="margin-left:auto;">IDLE</span></h3>
+      <label>Nagranie źródłowe</label>
+      <select id="replay-file">
+        <option>capture_garage_433.iq</option><option>capture_car_315.iq</option>
+        <option>capture_gate_868.iq</option><option>capture_alarm_433.iq</option>
+      </select>
+      <label>Powtórzeń</label><input type="number" id="replay-count" value="3">
+      <label>Przerwa między (ms)</label><input type="number" id="replay-gap" value="250">
+      <div class="bar-outer"><div class="bar-inner" id="replay-bar" style="width:0%;background:var(--orange);"></div></div>
+      <button class="btn red" onclick="fireOff('replay')">▶ ODTWÓRZ</button>
+      <div class="mini-label" id="replay-counter">Odtworzono: 0 / 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🧪</span> RF Fuzzer <span class="pill pill-idle" id="pill-fuzzer" style="margin-left:auto;">IDLE</span></h3>
+      <label>Zakres bitów</label><input type="text" id="fuzz-range" value="0-32">
+      <label>Strategia</label>
+      <select id="fuzz-strategy"><option>Random</option><option>Bit-flip</option><option>Incremental</option><option>Dictionary</option></select>
+      <label>Szybkość (pkt/s)</label><input type="number" id="fuzz-rate" value="10">
+      <div class="bar-outer"><div class="bar-inner" id="fuzzer-bar" style="width:0%;background:var(--purple);"></div></div>
+      <button class="btn red" onclick="fireOff('fuzzer')">▶ FUZZUJ</button>
+      <div class="mini-label" id="fuzzer-counter">Próby: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🔓</span> Rolling Code Cracker <span class="pill pill-idle" id="pill-cracker" style="margin-left:auto;">IDLE</span></h3>
+      <label>Algorytm</label>
+      <select id="crack-algo"><option>KeeLoq</option><option>Hitag2</option><option>DST40</option><option>AUT64</option></select>
+      <label>Przechwycone kody</label><input type="number" id="crack-samples" value="2">
+      <div class="bar-outer"><div class="bar-inner" id="cracker-bar" style="width:0%;background:var(--red);"></div></div>
+      <button class="btn red" onclick="fireOff('cracker')">▶ ŁAMAĆ</button>
+      <div class="mini-label" id="cracker-counter">Prawdopodobieństwo: 0%</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🎯</span> Selective Jammer <span class="pill pill-idle" id="pill-seljam" style="margin-left:auto;">IDLE</span></h3>
+      <label>Protokół celu</label>
+      <select id="seljam-proto"><option>WiFi Beacon</option><option>BLE Advert</option><option>LoRa Join</option><option>Zigbee</option><option>Z-Wave</option></select>
+      <label>Próg trigger (dBm)</label><input type="number" id="seljam-thresh" value="-60">
+      <label>Okno (ms)</label><input type="number" id="seljam-window" value="50">
+      <button class="btn red" onclick="fireOff('seljam')">▶ AKTYWUJ</button>
+      <div class="mini-label" id="seljam-counter">Trafień: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">📡</span> DeAuth Flood <span class="pill pill-idle" id="pill-deauth" style="margin-left:auto;">IDLE</span></h3>
+      <label>Kanał WiFi</label><input type="number" id="deauth-channel" value="6" min="1" max="14">
+      <label>BSSID</label><input type="text" id="deauth-bssid" value="AA:BB:CC:11:22:33">
+      <label>Intensywność: <span id="deauth-int-val">50</span> pkt/s</label>
+      <input type="range" id="deauth-intensity" min="1" max="200" value="50" oninput="document.getElementById('deauth-int-val').textContent=this.value">
+      <button class="btn red" onclick="fireOff('deauth')">▶ FLOOD</button>
+      <div class="mini-label" id="deauth-counter">Wysłano deauth: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">✈️</span> ADS-B Ghost Injector <span class="pill pill-idle" id="pill-adsb" style="margin-left:auto;">IDLE</span></h3>
+      <label>ICAO</label><input type="text" id="adsb-icao" value="3C6444">
+      <label>Callsign</label><input type="text" id="adsb-callsign" value="GHOST01">
+      <div class="row">
+        <div style="flex:1;"><label>Alt (ft)</label><input type="number" id="adsb-alt" value="35000"></div>
+        <div style="flex:1;"><label>Speed (kt)</label><input type="number" id="adsb-speed" value="450"></div>
+      </div>
+      <canvas id="adsbRadar"></canvas>
+      <button class="btn red" onclick="fireOff('adsb')">▶ WSTRZYKNIJ</button>
+      <div class="mini-label" id="adsb-counter">Wysłano ramek: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">📟</span> POCSAG Injector <span class="pill pill-idle" id="pill-pocsag" style="margin-left:auto;">IDLE</span></h3>
+      <label>Capcode</label><input type="text" id="pocsag-capcode" value="1234567">
+      <label>Wiadomość</label><input type="text" id="pocsag-msg" value="TEST ALERT 91">
+      <label>Baud</label>
+      <select id="pocsag-baud"><option>512</option><option selected>1200</option><option>2400</option></select>
+      <button class="btn red" onclick="fireOff('pocsag')">▶ WYŚLIJ PAGER</button>
+      <div class="mini-label" id="pocsag-counter">Wysłano: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🚗</span> TPMS Spoofer <span class="pill pill-idle" id="pill-tpms" style="margin-left:auto;">IDLE</span></h3>
+      <label>ID sensora (hex)</label><input type="text" id="tpms-id" value="A1B2C3D4">
+      <div class="row">
+        <div style="flex:1;"><label>Ciśnienie (PSI)</label><input type="number" id="tpms-psi" value="35"></div>
+        <div style="flex:1;"><label>Temp (°C)</label><input type="number" id="tpms-temp" value="25"></div>
+      </div>
+      <label>Protokół</label>
+      <select id="tpms-proto"><option>Schrader</option><option>Continental</option><option>Pacific Industries</option></select>
+      <button class="btn red" onclick="fireOff('tpms')">▶ TPMS SPOOF</button>
+      <div class="mini-label" id="tpms-counter">Wysłano ramek: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,68,68,.3);">
+      <h3><span class="ico">🚁</span> Drone Freq Attack <span class="pill pill-idle" id="pill-drone" style="margin-left:auto;">IDLE</span></h3>
+      <label>Typ drona</label>
+      <select id="drone-type"><option>DJI Mavic (2.4GHz)</option><option>DJI Mini (5.8GHz)</option><option>Parrot (2.4GHz)</option><option>Generic RC (27MHz)</option></select>
+      <label>Kanał sterowania</label>
+      <select id="drone-channel"><option>2.4 GHz</option><option>5.8 GHz</option><option>433 MHz</option></select>
+      <label>Cel</label>
+      <select id="drone-target"><option>Sygnał sterowania</option><option>Video downlink</option><option>RC telemetria</option></select>
+      <button class="btn red" onclick="fireOff('drone')">▶ AKTYWUJ</button>
+      <div class="mini-label" id="drone-counter">Pakiety zakłócone: 0</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(234,179,8,.3);">
+      <h3><span class="ico">ℹ️</span> GSM Info <span class="pill pill-idle" style="margin-left:auto;">INFO ONLY</span></h3>
+      <div style="font-size:11px;color:var(--txtdim);line-height:1.6;">
+        <p style="margin:0 0 6px;color:var(--yellow);">⚠️ Wyłącznie do celów edukacyjnych</p>
+        <div class="kvrow"><span>GSM900 DL</span><b>935–960 MHz</b></div>
+        <div class="kvrow"><span>GSM900 UL</span><b>890–915 MHz</b></div>
+        <div class="kvrow"><span>GSM1800 DL</span><b>1805–1880 MHz</b></div>
+        <div class="kvrow"><span>Modulacja</span><b>GMSK</b></div>
+        <div class="kvrow"><span>Kanały</span><b>124 (GSM900)</b></div>
+        <div class="kvrow"><span>Szerokość kanału</span><b>200 kHz</b></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ TAB: DEFENSYWA ============ -->
+<div class="page" id="page-defensywa">
+  <div class="grid grid-3">
+    <div class="card">
+      <h3><span class="ico">🛰️</span> Radar zagrożeń</h3>
+      <canvas id="radarCanvas"></canvas>
+      <div class="mini-label" id="radarThreatCount" style="text-align:center;">Wykryte zagrożenia: 5</div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🛡</span> Shield Level</h3>
+      <div class="shield-wrap">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="52" fill="none" stroke="#21262d" stroke-width="12"/>
+          <circle id="shieldRing" cx="65" cy="65" r="52" fill="none" stroke="#22c55e" stroke-width="12"
+            stroke-dasharray="327" stroke-dashoffset="54" stroke-linecap="round" transform="rotate(-90 65 65)"/>
+          <text id="shieldPct" x="65" y="71" text-anchor="middle" font-size="24" fill="#fff" font-weight="800">83%</text>
+        </svg>
+      </div>
+      <div class="mini-label" style="text-align:center;">Poziom ochrony systemu</div>
+      <div class="kvrow"><span>Anomalie/h</span><b id="anomPerH">0</b></div>
+      <div class="kvrow"><span>Blokowane</span><b id="blockedCount" style="color:var(--green)">0</b></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">📈</span> Spektrum anomalii</h3>
+      <canvas id="anomCanvas"></canvas>
+      <h3 style="margin-top:8px;"><span class="ico">📊</span> Timeline 24h</h3>
+      <canvas id="anomTimelineCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">🚨</span> Alerty na żywo</h3>
+      <div id="alertList" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">⚙️</span> Automaty obrony</h3>
+      <div id="autoDefenseList" style="display:flex;flex-direction:column;gap:5px;"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">📋</span> Whitelist freq</h3>
+      <div id="whitelistBox" style="display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto;margin-bottom:6px;"></div>
+      <div class="row">
+        <input type="text" id="wlFreqInput" placeholder="Np. 433.92 MHz" style="flex:1;">
+        <button class="btn green small" onclick="addWhitelist()">+ Dodaj</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🚫</span> Blacklist freq</h3>
+      <div id="blacklistBox" style="display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto;margin-bottom:6px;"></div>
+      <div class="row">
+        <input type="text" id="blFreqInput" placeholder="Np. 400.00 MHz" style="flex:1;">
+        <button class="btn red small" onclick="addBlacklist()">+ Dodaj</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🏃</span> Hop Detector (FHSS)</h3>
+      <canvas id="hopCanvas"></canvas>
+      <div class="mini-label" id="hopStatus">FHSS: brak aktywności</div>
+      <div class="row" style="margin-top:4px;">
+        <label>GeoFence</label>
+        <label class="switch"><input type="checkbox" id="geofenceToggle" onchange="toggleGeofence()"><span class="slider-tog"></span></label>
+        <label>Radius: <span id="geofenceRadius">500</span>m</label>
+      </div>
+      <input type="range" id="geofenceSlider" min="100" max="5000" value="500" oninput="document.getElementById('geofenceRadius').textContent=this.value">
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: DEKODER ============ -->
+<div class="page" id="page-dekoder">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="ico">🧾</span> Hex Dump</h3>
+      <div class="hexdump" id="hexDump"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🔢</span> Bity RAW</h3>
+      <div class="bitstream" id="bitStream"></div>
+      <h3 style="margin-top:6px;"><span class="ico">🖥️</span> Konsola</h3>
+      <div class="console" id="decConsole"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">🧩</span> Zdekodowane ramki</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Preamb.</th><th>Sync</th><th>DevID</th><th>Payload</th><th>CRC</th></tr></thead>
+          <tbody id="protoDecodeBody"></tbody>
+        </table>
+      </div>
+      <h3 style="margin-top:6px;"><span class="ico">🔍</span> Auto-detect</h3>
+      <div id="autoDetectList" style="display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--green);max-height:80px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ico">✈️</span> ADS-B Live Decode</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ICAO</th><th>Call</th><th>Alt</th><th>Spd</th><th>Hdg</th></tr></thead>
+          <tbody id="adsbDecodeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ico">🌡️</span> Sensor pogodowy ISM</h3>
+      <div class="kvrow"><span>Temperatura</span><b id="wx-temp">--°C</b></div>
+      <div class="kvrow"><span>Wilgotność</span><b id="wx-hum">--%</b></div>
+      <div class="kvrow"><span>Ciśnienie</span><b id="wx-pres">-- hPa</b></div>
+      <div class="kvrow"><span>Bateria</span><b id="wx-bat">--V</b></div>
+      <div class="kvrow"><span>ID urządzenia</span><b id="wx-id">--</b></div>
+      <div class="kvrow"><span>Protokół</span><b id="wx-proto">Bresser 5-in-1</b></div>
+      <div class="kvrow"><span>Freq</span><b>868.3 MHz</b></div>
+      <div class="kvrow"><span>Ostat. ramka</span><b id="wx-time">--</b></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">🕓</span> Historia przechwytów</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Czas</th><th>Długość</th><th>Częstotliwość</th><th>Mod</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🔧</span> Custom Protocol Builder</h3>
+      <label>Preambuła (hex)</label><input type="text" id="cpb-preamble" value="AAAA">
+      <label>Sync word (hex)</label><input type="text" id="cpb-sync" value="D391">
+      <label>Payload length (bits)</label><input type="number" id="cpb-paylen" value="32">
+      <label>CRC poly (hex)</label><input type="text" id="cpb-crc" value="8005">
+      <label>Modulacja</label>
+      <select id="cpb-mod"><option>OOK</option><option>FSK</option><option>MSK</option><option>BPSK</option></select>
+      <button class="btn cyan" onclick="buildCustomProtocol()">🔧 Buduj dekoder</button>
+      <div class="mini-label" id="cpb-result">—</div>
+      <div class="row" style="margin-top:6px;">
+        <button class="btn blue small" onclick="exportAction('JSON dekodera')">JSON</button>
+        <button class="btn green small" onclick="exportAction('TXT dekodera')">TXT</button>
+        <button class="btn purple small" onclick="exportAction('pcap dekodera')">pcap</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: SIGINT ============ -->
+<div class="page" id="page-sigint">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="ico">🗺️</span> Mapa sygnałów RF</h3>
+      <canvas id="sigmapCanvas"></canvas>
+    </div>
+    <div class="card">
+      <h3><span class="ico">📐</span> TDOA Triangulator</h3>
+      <div class="grid grid-3">
+        <div>
+          <label class="mini-label">Rx0 (x,y m)</label><input type="text" value="0,0" id="rx0pos">
+          <label class="mini-label">TDOA µs</label><input type="text" id="rx0tdoa" value="0.00">
+        </div>
+        <div>
+          <label class="mini-label">Rx1 (x,y m)</label><input type="text" value="120,40" id="rx1pos">
+          <label class="mini-label">TDOA µs</label><input type="text" id="rx1tdoa" value="2.31">
+        </div>
+        <div>
+          <label class="mini-label">Rx2 (x,y m)</label><input type="text" value="60,140" id="rx2pos">
+          <label class="mini-label">TDOA µs</label><input type="text" id="rx2tdoa" value="4.87">
+        </div>
+      </div>
+      <button class="btn cyan" onclick="calcTdoa()">📍 Oblicz pozycję</button>
+      <div class="mini-label">Wyznaczona pozycja: <b id="tdoaResult">--</b></div>
+      <h3 style="margin-top:8px;"><span class="ico">📊</span> Historia siły sygnału</h3>
+      <canvas id="sigTimeline"></canvas>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">📚</span> Baza sygnałów SIGINT</h3>
+      <div class="tablewrap tall">
+        <table>
+          <thead><tr><th>ID</th><th>Freq</th><th>Mod</th><th>BW</th><th>dBm</th><th>Pierwsze</th><th>Przechwyty</th><th>Status</th></tr></thead>
+          <tbody id="sigintBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <button class="btn blue small" onclick="exportAction('PDF SIGINT')">PDF</button>
+        <button class="btn green small" onclick="exportAction('JSON SIGINT')">JSON</button>
+        <button class="btn purple small" onclick="exportAction('KML SIGINT')">KML</button>
+        <button class="btn yellow small" onclick="exportAction('Google Maps KML')">🌍 GMaps</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card">
+        <h3><span class="ico">🧬</span> Fingerprinter</h3>
+        <div class="bar-outer"><div class="bar-inner" id="fingerBar" style="width:0%;background:var(--purple);"></div></div>
+        <div id="fingerResult" class="mini-label">Analiza w toku...</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🤖</span> Klasyfikator AI</h3>
+        <label>Model</label>
+        <select id="aiModel"><option>CNN</option><option>RandomForest</option><option>SVM</option><option>LSTM</option></select>
+        <label>Pewność min. (%)</label><input type="number" id="aiConfMin" value="70">
+        <button class="btn cyan" onclick="classifySignal()">🔎 Klasyfikuj</button>
+        <div id="aiResult" class="mini-label">Wynik: --</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🌡️</span> Heatmapa widma 24h</h3>
+        <canvas id="heatmapCanvas"></canvas>
+        <div class="mini-label">Intensywność aktywności / 100MHz / godzina</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: PROTOKOŁY ============ -->
+<div class="page" id="page-protokoly">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="ico">📋</span> Band Plan (klikalne)</h3>
+      <div class="tablewrap tall">
+        <table>
+          <thead><tr><th>Nazwa</th><th>Freq</th><th>Mod</th><th>Zastosowanie</th><th>Status</th></tr></thead>
+          <tbody id="bandplanBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🛰️</span> Protocol Reverser</h3>
+      <label>Wgraj próbkę (symulacja)</label>
+      <select id="rev-sample">
+        <option>capture_unknown_433.iq</option><option>capture_ism868.iq</option><option>capture_custom.iq</option>
+      </select>
+      <button class="btn blue" onclick="reverseProtocol()">📂 Wgraj i analizuj</button>
+      <div id="reverseStatus" class="mini-label">Brak próbki.</div>
+      <div class="blockdiagram" id="protoBlockDiagram" style="margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <h3><span class="ico">📦</span> Znane protokoły</h3>
+    <div class="cardsgrid" id="knownProtoGrid"></div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <h3><span class="ico">🔄</span> Scanner 0–6 GHz</h3>
+    <div class="row">
+      <div style="flex:1;"><label>Start (MHz)</label><input type="number" id="scanStart" value="0"></div>
+      <div style="flex:1;"><label>Stop (MHz)</label><input type="number" id="scanStop" value="6000"></div>
+      <div style="flex:1;"><label>Krok (kHz)</label><input type="number" id="scanStep" value="25"></div>
+      <button class="btn cyan" onclick="toggleScanner()">▶ SCAN</button>
+    </div>
+    <div class="bar-outer" style="margin-top:6px;"><div class="bar-inner" id="scanBar" style="width:0%;background:var(--cyan);"></div></div>
+    <div class="mini-label">Skanuje: <b id="scanFreqLbl">0 MHz</b></div>
+    <div id="scanActivityList" style="display:flex;flex-direction:column;gap:3px;margin-top:6px;max-height:120px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- ============ TAB: SWEEP ============ -->
+<div class="page" id="page-sweep">
+  <div class="card">
+    <h3><span class="ico">🔍</span> Sweep Widma 0–6 GHz</h3>
+    <div class="row" style="margin-bottom:6px;">
+      <div style="flex:1;"><label>Start</label><input type="number" id="sw-start" value="0" placeholder="MHz"></div>
+      <div style="flex:1;"><label>Stop</label><input type="number" id="sw-stop" value="6000" placeholder="MHz"></div>
+      <div style="flex:1;"><label>Krok (kHz)</label><input type="number" id="sw-step" value="50"></div>
+      <div style="flex:1;"><label>Czas/krok (ms)</label><input type="number" id="sw-dwell" value="10"></div>
+      <button class="btn green" id="sweepBtn" onclick="toggleSweep()" style="align-self:flex-end;">▶ START SWEEP</button>
+    </div>
+    <canvas id="sweepCanvas"></canvas>
+    <div class="row between" style="margin-top:4px;">
+      <div class="mini-label">Postęp: <b id="swPct">0%</b></div>
+      <div class="mini-label">Skanuje: <b id="swFreqLbl">0 MHz</b></div>
+      <div class="mini-label">Czas: <b id="swEta">--</b></div>
+    </div>
+    <div class="bar-outer"><div class="bar-inner" id="swBar" style="width:0%;background:var(--green);"></div></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">📋</span> Wyniki sweepowania</h3>
+      <div class="tablewrap tall">
+        <table>
+          <thead><tr><th>Freq</th><th>Power (dBm)</th><th>Mod (est.)</th><th>BW (est.)</th><th>Wykryto</th></tr></thead>
+          <tbody id="sweepResultBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <button class="btn blue small" onclick="exportAction('CSV sweep')">CSV</button>
+        <button class="btn green small" onclick="exportAction('JSON sweep')">JSON</button>
+        <button class="btn orange small" onclick="exportAction('PDF sweep')">PDF</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">📜</span> Historia skanów</h3>
+      <div id="sweepHistory" style="display:flex;flex-direction:column;gap:5px;max-height:300px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: AUDIO ============ -->
+<div class="page" id="page-audio">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="ico">🔊</span> Audio Demodulator</h3>
+      <canvas id="audioWaveCanvas"></canvas>
+      <canvas id="audioSpecCanvas"></canvas>
+      <div class="row between" style="margin-top:4px;">
+        <label>Tryb</label>
+        <select id="audio-mode" style="width:auto;"><option>FM</option><option>AM</option><option>WBFM</option><option>USB</option><option>LSB</option><option>CW</option><option>DSB</option></select>
+        <button class="btn purple" id="audioBtn" onclick="toggleAudio()">▶ START</button>
+      </div>
+      <label>Squelch: <span id="squelchVal">-80</span> dBm</label>
+      <input type="range" id="squelchSlider" min="-120" max="0" value="-80" oninput="document.getElementById('squelchVal').textContent=this.value">
+      <label>Volume: <span id="volVal">70</span>%</label>
+      <input type="range" id="volSlider" min="0" max="100" value="70" oninput="document.getElementById('volVal').textContent=this.value">
+      <div class="row">
+        <label>Stereo</label>
+        <label class="switch"><input type="checkbox" id="stereoToggle" checked><span class="slider-tog"></span></label>
+        <label>Filtr HP</label>
+        <label class="switch"><input type="checkbox" id="hpToggle"><span class="slider-tog"></span></label>
+        <label>Filtr LP</label>
+        <label class="switch"><input type="checkbox" id="lpToggle"><span class="slider-tog"></span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ico">📻</span> RDS Decoder</h3>
+      <div class="kvrow"><span>Program Name</span><b id="rds-ps">-------</b></div>
+      <div class="kvrow"><span>Radio Text</span><b id="rds-rt" style="color:var(--cyan)">----</b></div>
+      <div class="kvrow"><span>PI Code</span><b id="rds-pi">0x0000</b></div>
+      <div class="kvrow"><span>PTY</span><b id="rds-pty">--</b></div>
+      <div class="kvrow"><span>TP</span><b id="rds-tp">NO</b></div>
+      <div class="kvrow"><span>Czas</span><b id="rds-time">--:--</b></div>
+      <h3 style="margin-top:8px;"><span class="ico">⏺</span> Audio Recorder</h3>
+      <label>Format</label>
+      <select id="audio-rec-fmt"><option>MP3</option><option>WAV</option><option>FLAC</option><option>OGG</option></select>
+      <div class="kvrow"><span>Czas nagrania</span><b id="audioRecTime">00:00:00</b></div>
+      <div class="kvrow"><span>Rozmiar</span><b id="audioRecSize">0 KB</b></div>
+      <div class="bar-outer"><div class="bar-inner" id="audioRecBar" style="width:0%;background:var(--purple);"></div></div>
+      <button class="btn purple" id="audioRecBtn" onclick="toggleAudioRec()">⏺ NAGRAJ</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <h3><span class="ico">📡</span> Kanały szybkiego dostępu</h3>
+    <div class="grid grid-4" id="audioChannelGrid"></div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <h3><span class="ico">📜</span> Log audio</h3>
+    <div class="logbox" id="audioLog"></div>
+  </div>
+</div>
+
+<!-- ============ TAB: MISJA ============ -->
+<div class="page" id="page-mission">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="ico">🎯</span> Mission Planner
+        <span class="pill pill-idle" id="missionStatusPill" style="margin-left:auto;">STANDBY</span>
+        <span class="mini-label" id="missionTimer" style="margin-left:8px;">00:00:00</span>
+      </h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Nazwa</th><th>Cel</th><th>Freq</th><th>Priorytet</th><th>Status</th></tr></thead>
+          <tbody id="missionBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <input type="text" id="m-name" placeholder="Nazwa misji" style="flex:1;">
+        <input type="text" id="m-target" placeholder="Cel" style="flex:1;">
+        <input type="text" id="m-freq" placeholder="Freq (MHz)" style="flex:1;">
+        <select id="m-prio" style="width:auto;"><option>WYSOKI</option><option>ŚREDNI</option><option>NISKI</option></select>
+        <button class="btn orange small" onclick="addMission()">+ Dodaj</button>
+      </div>
+      <div class="row">
+        <button class="btn green" onclick="startMission()">▶ START MISJI</button>
+        <button class="btn red" onclick="stopMission()">■ STOP</button>
+        <button class="btn blue small" onclick="exportAction('PDF misji')">PDF</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ico">🗃️</span> Target Database</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Obiekt</th><th>Lokalizacja</th><th>Protokół</th><th>Ostatnia akt.</th><th>Zagrożenie</th></tr></thead>
+          <tbody id="targetBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:10px;">
+    <div class="card">
+      <h3><span class="ico">📋</span> OPSEC Checklist</h3>
+      <div id="opsecList" style="display:flex;flex-direction:column;gap:5px;"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">📜</span> Operation Log</h3>
+      <div class="console" id="opLog"></div>
+      <div class="row" style="margin-top:6px;">
+        <button class="btn blue small" onclick="exportAction('TXT operation log')">📄 Eksport logu</button>
+        <button class="btn red small" onclick="clearOpLog()">🗑 Wyczyść</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: SZTUKA WOJNY ============ -->
+<div class="page" id="page-sun">
+  <div class="quote-box" id="quoteBox">
+    <div class="cn">☯ 孫子兵法</div>
+    <div class="pl" id="quoteText">"Znaj swojego wroga i znaj samego siebie, a w stu bitwach nigdy nie doznasz porażki."</div>
+    <div class="ctx" id="quoteCtx">Kontekst RF: Poznanie widma przeciwnika (SIGINT) oraz własnego footprintu emisji jest podstawą przewagi elektronicznej.</div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:12px;">
+    <div class="card">
+      <h3><span class="ico">📜</span> 13 Rozdziałów Sun Tzu — zastosowanie RF</h3>
+      <div id="sunChapterList" style="display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto;"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">⚔️</span> Tactical Scenario Simulator</h3>
+      <label>Wybierz scenariusz</label>
+      <select id="scenarioSelect" onchange="runScenario()">
+        <option value="">— wybierz —</option>
+        <option value="parking">Rekon parkingu IoT</option>
+        <option value="building">Analiza budynku biurowego</option>
+        <option value="defense">Obrona instalacji krytycznej</option>
+        <option value="drone">Wykrycie drona</option>
+        <option value="intercept">Przechwycenie komunikacji</option>
+      </select>
+      <div id="scenarioOutput" class="console" style="height:120px;margin-top:6px;"></div>
+      <h3 style="margin-top:8px;"><span class="ico">🔒</span> OPSEC Score</h3>
+      <div class="shield-wrap" style="padding:2px;">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#21262d" stroke-width="10"/>
+          <circle id="opsecRing" cx="50" cy="50" r="38" fill="none" stroke="#d4af37" stroke-width="10"
+            stroke-dasharray="239" stroke-dashoffset="80" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <text id="opsecPct" x="50" y="55" text-anchor="middle" font-size="18" fill="#fff" font-weight="800">67%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <h3><span class="ico">📋</span> Zasady Elektronicznej Sztuki Wojennej</h3>
+    <div id="sunRulesList" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+/* ======================= GLOBAL STATE ======================= */
+let measEnabled = true;
+let rxOn = false, recOn = false, recProgress = 0;
+let audioOn = false, audioRecOn = false, audioRecSec = 0;
+let sweepOn = false, sweepPct = 0;
+let missionActive = false, missionSec = 0;
+let currentFreqHz = 433920000;
+let statPkt = 0, thrCount = 0, anomPerHour = 0, blockedTotal = 0;
+let snrHistory = [];
+let sigTimelineData = {};
+let whitelistItems = ['433.92 MHz','868.00 MHz','915.00 MHz'];
+let blacklistItems = ['400.00 MHz'];
+
+const PRESETS = [
+  {n:'433 MHz', f:433920000},{n:'868 MHz', f:868000000},{n:'915 MHz', f:915000000},
+  {n:'FM Radio', f:100000000},{n:'ADS-B', f:1090000000},{n:'GPS L1', f:1575420000},
+  {n:'WiFi 2.4G', f:2437000000},{n:'BLE', f:2402000000},{n:'315 MHz', f:315000000},
+  {n:'NOAA WX', f:162550000},{n:'Marine', f:156800000},{n:'FRS/GMRS', f:462562500},
+];
+
+const AUDIO_CHANNELS = [
+  {n:'Lotnisko EPKK', f:'121.500 MHz', m:'AM'},
+  {n:'Straż pożarna', f:'155.000 MHz', m:'FM'},
+  {n:'Marine Ch.16', f:'156.800 MHz', m:'FM'},
+  {n:'NOAA WX-1', f:'162.400 MHz', m:'WFM'},
+  {n:'PMR 446-1', f:'446.006 MHz', m:'FM'},
+  {n:'CB Kanał 19', f:'27.185 MHz', m:'AM'},
+  {n:'Policja UHF', f:'452.000 MHz', m:'FM'},
+  {n:'FM 100.1', f:'100.100 MHz', m:'WFM'},
+];
+
+const MISSIONS_DEFAULT = [
+  {name:'Rekon ISM 433', target:'Okolica — IoT', freq:'433.92', prio:'WYSOKI', status:'OCZEKUJE'},
+  {name:'Analiza 868 EU', target:'Buynek B', freq:'868.00', prio:'ŚREDNI', status:'AKTYWNA'},
+  {name:'Monitoring 1090', target:'Port lotniczy', freq:'1090.00', prio:'NISKI', status:'ZAKOŃCZONA'},
+];
+
+const TARGETS_DEFAULT = [
+  {obj:'Brama garażowa', loc:'Sektor A', proto:'KeeLoq OOK', last:'2026-08-07 14:22', threat:'NISKIE'},
+  {obj:'Czujnik alarmu', loc:'Budynek 3', proto:'FSK 433MHz', last:'2026-08-07 15:01', threat:'ŚREDNIE'},
+  {obj:'Nieznany TX', loc:'Parking S', proto:'OOK 315MHz', last:'2026-08-07 16:10', threat:'WYSOKIE'},
+  {obj:'Dron rekon', loc:'Strefa N', proto:'DJI 2.4GHz', last:'2026-08-07 16:45', threat:'KRYTYCZNE'},
+];
+
+const OPSEC_ITEMS = [
+  'Minimalna moc TX (nie przekraczaj niezbędnej)',
+  'Krótkie okna transmisji (< 100ms)',
+  'Losowe przerwy między emisjami',
+  'Brak stałego wzorca aktywności',
+  'Monitoruj własny footprint emisji',
+  'Używaj anteny kierunkowej gdy możliwe',
+  'Sprawdź przepisy lokalne przed emisją',
+  'Dokumentuj wszystkie operacje w logu',
+];
+
+/* ======================= LOG ======================= */
+function addLog(msg, cls){
+  const box = document.getElementById('eventLog');
+  if(!box) return;
+  const t = new Date().toLocaleTimeString('pl-PL');
+  const div = document.createElement('div');
+  div.innerHTML = `<span class="l-time">[${t}]</span> ${msg}`;
+  if(cls) div.style.color = cls;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  while(box.children.length > 300) box.removeChild(box.firstChild);
+}
+
+function addOpLog(msg){
+  const box = document.getElementById('opLog');
+  if(!box) return;
+  const t = new Date().toLocaleTimeString('pl-PL');
+  const div = document.createElement('div');
+  div.textContent = `[${t}] ${msg}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  while(box.children.length > 200) box.removeChild(box.firstChild);
+}
+
+function addAudioLog(msg){
+  const box = document.getElementById('audioLog');
+  if(!box) return;
+  const t = new Date().toLocaleTimeString('pl-PL');
+  const div = document.createElement('div');
+  div.innerHTML = `<span class="l-time">[${t}]</span> ${msg}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  while(box.children.length > 100) box.removeChild(box.firstChild);
+}
+
+function clearOpLog(){ const b = document.getElementById('opLog'); if(b) b.innerHTML=''; }
+
+/* ======================= TABS ======================= */
+function showTab(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelector('.tabbtn[data-tab="'+name+'"]').classList.add('active');
+  setTimeout(resizeAllCanvases, 50);
+}
+
+/* ======================= TOGGLE MEASUREMENTS ======================= */
+function toggleMeas(){
+  measEnabled = document.getElementById('meas-toggle-input').checked;
+  const led = document.getElementById('ledMain');
+  led.classList.toggle('on', measEnabled);
+  led.classList.toggle('blink', measEnabled);
+  document.getElementById('hstat').style.color = measEnabled ? 'var(--green)' : 'var(--red)';
+  document.getElementById('hstat').textContent = measEnabled ? 'AKTYWNY' : 'PAUZA';
+  addLog(measEnabled ? '<span style="color:#22c55e">Pomiary WŁĄCZONE</span>' : '<span style="color:#ef4444">Pomiary WYŁĄCZONE</span>');
+}
+
+/* ======================= FREQUENCY ======================= */
+function fmtFreq(hz){
+  if(hz>=1e9) return (hz/1e9).toFixed(6)+' GHz';
+  if(hz>=1e6) return (hz/1e6).toFixed(3)+' MHz';
+  if(hz>=1e3) return (hz/1e3).toFixed(3)+' kHz';
+  return hz+' Hz';
+}
+function updateFreqDisplay(){
+  document.getElementById('freqInput').value = currentFreqHz;
+  document.getElementById('freqDisplay').textContent = fmtFreq(currentFreqHz);
+}
+function setFreqFromInput(){
+  const v = parseInt(document.getElementById('freqInput').value,10);
+  if(!isNaN(v) && v>0){ currentFreqHz=v; updateFreqDisplay(); addLog('Częstotliwość: '+fmtFreq(currentFreqHz)); }
+}
+function stepFreq(delta){
+  currentFreqHz = Math.max(1, currentFreqHz+delta);
+  updateFreqDisplay();
+}
+function setPreset(f,n){
+  currentFreqHz = f; updateFreqDisplay();
+  addLog('Preset: <b>'+n+'</b> ('+fmtFreq(f)+')');
+}
+function renderPresets(){
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = PRESETS.map(p=>`<div class="preset" onclick="setPreset(${p.f},'${p.n}')">${p.n}</div>`).join('');
+}
+
+function autoTune(){
+  addLog('⚡ Auto-Tune: szukam najsilniejszego sygnału...');
+  setTimeout(()=>{
+    const candidates=[433920000,868000000,1090000000,2437000000];
+    currentFreqHz = candidates[Math.floor(Math.random()*candidates.length)];
+    updateFreqDisplay();
+    addLog('⚡ Auto-Tune: znaleziono '+fmtFreq(currentFreqHz));
+  }, 1200);
+}
+
+/* ======================= GAINS ======================= */
+function updateGainLabels(){
+  document.getElementById('lnaVal').textContent = document.getElementById('lnaGain').value;
+  document.getElementById('vgaVal').textContent = document.getElementById('vgaGain').value;
+  document.getElementById('txvgaVal').textContent = document.getElementById('txvgaGain').value;
+}
+
+function connectDevice(){
+  addLog('🔌 Łączę z urządzeniem HackRF...');
+  setTimeout(()=>{
+    document.getElementById('devSerial').textContent = 'HRF-'+Math.floor(Math.random()*0xFFFF).toString(16).toUpperCase();
+    document.getElementById('devTemp').textContent = (38+Math.random()*12).toFixed(1)+'°C';
+    addLog('<span style="color:var(--green)">✔ Urządzenie połączone!</span>');
+  }, 800);
+}
+
+/* ======================= RX TOGGLE ======================= */
+function toggleRx(){
+  rxOn = !rxOn;
+  const btn = document.getElementById('rxBtn');
+  const pill = document.getElementById('rxPill');
+  if(rxOn){
+    btn.textContent='■ STOP RX'; btn.className='btn red';
+    pill.textContent='AKTYWNY'; pill.className='pill pill-active';
+    addLog('<span style="color:#22c55e">RX uruchomiony</span> na '+fmtFreq(currentFreqHz));
+    addOpLog('RX START @ '+fmtFreq(currentFreqHz));
+  } else {
+    btn.textContent='▶ START RX'; btn.className='btn green';
+    pill.textContent='IDLE'; pill.className='pill pill-idle';
+    addLog('<span style="color:#ef4444">RX zatrzymany</span>');
+    addOpLog('RX STOP');
+  }
+  document.getElementById('rxBtn').style.fontSize='13px';
+  document.getElementById('rxBtn').style.fontWeight='800';
+  document.getElementById('rxBtn').style.padding='8px 18px';
+}
+
+/* ======================= IQ RECORDER ======================= */
+function toggleRec(){
+  recOn = !recOn;
+  const btn = document.getElementById('iqRecBtn');
+  if(recOn){
+    recProgress=0;
+    btn.textContent='⏹ STOP REC'; btn.className='btn active-on';
+    addLog('IQ Recorder: START ('+document.getElementById('iqFormat').value+')');
+    addOpLog('IQ REC START format='+document.getElementById('iqFormat').value);
+  } else {
+    btn.textContent='⏺ REC'; btn.className='btn red';
+    addLog('IQ Recorder: STOP — zapisano '+recProgress.toFixed(1)+' MB');
+    addOpLog('IQ REC STOP '+recProgress.toFixed(1)+'MB');
+  }
+}
+
+/* ======================= MARKERS ======================= */
+function renderMarkerList(vals){
+  const box = document.getElementById('markerList');
+  if(!box) return;
+  box.innerHTML = vals.map((v,i)=>`
+    <div class="kvrow" style="background:var(--bg2);padding:4px 7px;border-radius:5px;">
+      <span>M${i+1} @ ${fmtFreq(v.f)}</span><b style="color:var(--orange)">${v.dbm.toFixed(1)} dBm</b>
+    </div>`).join('');
+}
+
+/* ======================= EXPORT ======================= */
+function exportAction(kind){ addLog('📦 Eksport: <b>'+kind+'</b> — zapisano (symulacja).'); }
+
+/* ======================= REF LEVEL ======================= */
+document.addEventListener('DOMContentLoaded',()=>{
+  const rl = document.getElementById('refLevel');
+  if(rl) rl.addEventListener('input',()=>{
+    document.getElementById('refLevelVal').textContent = rl.value;
+  });
+});
+</script>
+
+<script>
+/* ======================= CANVASES ======================= */
+let specCtx, wfCtx, specCanvas, wfCanvas;
+let iqCtx, iqCanvas2;
+let snrHistCtx, snrHistCanvas2;
+let radarCtx, radarCanvas2, radarAngle=0;
+let anomCtx, anomCanvas2;
+let anomTimeCtx, anomTimeCanvas;
+let sigmapCtx, sigmapCanvas2, sigmapT=0;
+let adsbCtx, adsbCanvas, adsbT=0;
+let sweepCtx, sweepCanvas2;
+let audioWaveCtx, audioWaveCanvas2, audioWaveT=0;
+let audioSpecCtx, audioSpecCanvas2;
+let hopCtx, hopCanvas2, hopT=0;
+let sigTimeCtx, sigTimeCanvas2;
+let heatCtx, heatCanvas2;
+
+const N_BINS=256;
+let peakHoldArr = new Array(N_BINS).fill(-120);
+
+function resizeCanvas(cv){
+  const rect = cv.getBoundingClientRect();
+  cv.width = Math.max(1, Math.floor(rect.width));
+  cv.height = Math.max(1, Math.floor(rect.height));
+}
+function resizeAllCanvases(){
+  ['specCanvas','waterfallCanvas','iqCanvas','snrHistCanvas','radarCanvas','anomCanvas',
+   'anomTimelineCanvas','sigmapCanvas','adsbRadar','sweepCanvas','audioWaveCanvas',
+   'audioSpecCanvas','hopCanvas','sigTimeline','heatmapCanvas'].forEach(id=>{
+    const cv = document.getElementById(id);
+    if(cv) resizeCanvas(cv);
+  });
+}
+
+/* Spectrum data */
+function genSpectrumData(t){
+  const arr = new Array(N_BINS);
+  for(let i=0;i<N_BINS;i++){
+    const x=i/N_BINS;
+    let v=-100+6*Math.sin(x*Math.PI*2+t*0.3);
+    v+=14*Math.exp(-Math.pow((x-0.5-0.15*Math.sin(t*0.15))*10,2));
+    v+=8*Math.exp(-Math.pow((x-0.2+0.1*Math.sin(t*0.22))*14,2));
+    v+=(Math.random()-0.5)*6;
+    arr[i]=v;
+  }
+  return arr;
+}
+
+function drawSpectrum(t){
+  if(!specCtx) return null;
+  const w=specCanvas.width, h=specCanvas.height;
+  specCtx.fillStyle='#000'; specCtx.fillRect(0,0,w,h);
+  specCtx.strokeStyle='rgba(255,255,255,0.05)';
+  for(let gy=0;gy<=4;gy++){ const y=h*gy/4; specCtx.beginPath(); specCtx.moveTo(0,y); specCtx.lineTo(w,y); specCtx.stroke(); }
+  const data = genSpectrumData(t);
+  const minDb=-120, maxDb=-20;
+  specCtx.beginPath();
+  data.forEach((v,i)=>{
+    const x=i/(N_BINS-1)*w;
+    const y=h-(v-minDb)/(maxDb-minDb)*h;
+    if(i===0) specCtx.moveTo(x,y); else specCtx.lineTo(x,y);
+    if(v>peakHoldArr[i]) peakHoldArr[i]=v; else peakHoldArr[i]-=0.15;
+  });
+  specCtx.strokeStyle='#58a6ff'; specCtx.lineWidth=1.5; specCtx.stroke();
+  const grad=specCtx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(88,166,255,0.35)'); grad.addColorStop(1,'rgba(88,166,255,0)');
+  specCtx.lineTo(w,h); specCtx.lineTo(0,h); specCtx.closePath(); specCtx.fillStyle=grad; specCtx.fill();
+  specCtx.beginPath();
+  peakHoldArr.forEach((v,i)=>{
+    const x=i/(N_BINS-1)*w; const y=h-(v-minDb)/(maxDb-minDb)*h;
+    if(i===0) specCtx.moveTo(x,y); else specCtx.lineTo(x,y);
+  });
+  specCtx.strokeStyle='#f97316'; specCtx.lineWidth=1; specCtx.stroke();
+  const markerXs=[0.2,0.5,0.78];
+  const dbmVals=markerXs.map(mx=>{ const idx=Math.floor(mx*(N_BINS-1)); return {f:currentFreqHz+(mx-0.5)*2000000, dbm:data[idx]}; });
+  markerXs.forEach((mx,i)=>{
+    const x=mx*w; specCtx.strokeStyle='#eab308'; specCtx.beginPath(); specCtx.moveTo(x,0); specCtx.lineTo(x,h); specCtx.stroke();
+    specCtx.fillStyle='#eab308'; specCtx.font='10px monospace'; specCtx.fillText('M'+(i+1),x+2,10);
+  });
+  if(measEnabled) renderMarkerList(dbmVals);
+  const centerDbm=data[Math.floor(N_BINS/2)];
+  if(measEnabled){
+    document.getElementById('dbmVal').textContent=centerDbm.toFixed(1)+' dBm';
+    const pct=Math.min(100,Math.max(0,(centerDbm+120)/100*100));
+    document.getElementById('dbmBar').style.width=pct+'%';
+  }
+  return data;
+}
+
+function drawWaterfall(data){
+  if(!wfCtx||!data) return;
+  const w=wfCanvas.width, h=wfCanvas.height;
+  wfCtx.drawImage(wfCanvas,0,0,w,h-1,0,1,w,h-1);
+  const minDb=-120, maxDb=-20;
+  for(let x=0;x<w;x++){
+    const idx=Math.floor(x/w*(data.length-1));
+    const v=data[idx];
+    const pct=Math.min(1,Math.max(0,(v-minDb)/(maxDb-minDb)));
+    let r,g,b;
+    if(pct<0.5){ r=0;g=Math.floor(pct*2*180);b=Math.floor(255-pct*2*100); }
+    else{ r=Math.floor((pct-0.5)*2*255);g=Math.floor(180-(pct-0.5)*2*80);b=0; }
+    wfCtx.fillStyle=`rgb(${r},${g},${b})`; wfCtx.fillRect(x,0,1,1);
+  }
+}
+
+/* IQ Constellation */
+function drawIQ(t){
+  if(!iqCtx) return;
+  const cv=iqCanvas2, w=cv.width, h=cv.height;
+  const cx=w/2, cy=h/2;
+  iqCtx.fillStyle='rgba(0,0,0,0.3)'; iqCtx.fillRect(0,0,w,h);
+  iqCtx.strokeStyle='rgba(255,255,255,0.08)';
+  iqCtx.beginPath(); iqCtx.moveTo(cx,0); iqCtx.lineTo(cx,h);
+  iqCtx.moveTo(0,cy); iqCtx.lineTo(w,cy); iqCtx.stroke();
+  const modes=['BPSK','QPSK','8PSK','16QAM'];
+  const modIdx=Math.floor(t*0.05)%modes.length;
+  const points=modIdx===0?2:modIdx===1?4:modIdx===2?8:16;
+  iqCtx.fillStyle='rgba(88,166,255,0.6)';
+  for(let i=0;i<12;i++){
+    const ang=(i/points)*Math.PI*2 + (Math.random()-0.5)*0.15;
+    const r=cx*0.65 + (Math.random()-0.5)*6;
+    const px=cx+r*Math.cos(ang), py=cy+r*Math.sin(ang);
+    iqCtx.beginPath(); iqCtx.arc(px,py,2,0,Math.PI*2); iqCtx.fill();
+  }
+  if(measEnabled) document.getElementById('iqModType').textContent='Mod: '+modes[modIdx];
+}
+
+/* SNR History */
+let snrHistBuf = new Array(60).fill(20);
+function drawSnrHist(){
+  if(!snrHistCtx) return;
+  const cv=snrHistCanvas2, w=cv.width, h=cv.height;
+  snrHistCtx.fillStyle='#000'; snrHistCtx.fillRect(0,0,w,h);
+  const max=50, min=0;
+  snrHistCtx.beginPath();
+  snrHistBuf.forEach((v,i)=>{
+    const x=i/snrHistBuf.length*w;
+    const y=h-(v-min)/(max-min)*h;
+    if(i===0) snrHistCtx.moveTo(x,y); else snrHistCtx.lineTo(x,y);
+  });
+  snrHistCtx.strokeStyle='var(--yellow)'; snrHistCtx.lineWidth=1.5; snrHistCtx.stroke();
+}
+
+/* Threat radar */
+const threatPoints=[
+  {ang:0.4,dist:0.7,label:'JAM'},{ang:2.1,dist:0.5,label:'SPF'},
+  {ang:3.5,dist:0.85,label:'???'},{ang:5.0,dist:0.35,label:'ROG'},
+  {ang:1.2,dist:0.6,label:'ANM'},
+];
+function drawThreatRadar(){
+  if(!radarCtx) return;
+  const w=radarCanvas2.width, h=radarCanvas2.height;
+  const cx=w/2, cy=h/2, r=Math.min(w,h)/2-6;
+  if(r<=0){ requestAnimationFrame(drawThreatRadar); return; }
+  radarCtx.fillStyle='#000'; radarCtx.fillRect(0,0,w,h);
+  radarCtx.strokeStyle='rgba(0,229,255,0.2)';
+  [0.25,0.5,0.75,1].forEach(f=>{ radarCtx.beginPath(); radarCtx.arc(cx,cy,r*f,0,Math.PI*2); radarCtx.stroke(); });
+  if(measEnabled) radarAngle+=0.05;
+  radarCtx.beginPath(); radarCtx.moveTo(cx,cy);
+  radarCtx.arc(cx,cy,r,radarAngle-0.5,radarAngle);
+  radarCtx.closePath(); radarCtx.fillStyle='rgba(0,229,255,0.12)'; radarCtx.fill();
+  radarCtx.beginPath(); radarCtx.moveTo(cx,cy);
+  radarCtx.lineTo(cx+r*Math.cos(radarAngle),cy+r*Math.sin(radarAngle));
+  radarCtx.strokeStyle='#00e5ff'; radarCtx.lineWidth=1.5; radarCtx.stroke();
+  threatPoints.forEach(p=>{
+    const px=cx+r*p.dist*Math.cos(p.ang), py=cy+r*p.dist*Math.sin(p.ang);
+    const diff=Math.abs(((radarAngle-p.ang+Math.PI*3)%(Math.PI*2))-Math.PI);
+    const lit=diff<0.6;
+    radarCtx.fillStyle=lit?'#ff4444':'rgba(255,68,68,0.4)';
+    radarCtx.beginPath(); radarCtx.arc(px,py,3,0,Math.PI*2); radarCtx.fill();
+    radarCtx.font='8px monospace'; radarCtx.fillStyle=lit?'#fff':'rgba(255,255,255,0.5)';
+    radarCtx.fillText(p.label,px+4,py);
+  });
+  requestAnimationFrame(drawThreatRadar);
+}
+
+/* Anomaly spectrum */
+function drawAnomSpectrum(){
+  if(!anomCtx) return;
+  const w=anomCanvas2.width, h=anomCanvas2.height;
+  anomCtx.fillStyle='#000'; anomCtx.fillRect(0,0,w,h);
+  const n=64;
+  for(let i=0;i<n;i++){
+    const isAnom=(i===12||i===13||i===40||i===41||i===42);
+    const v=isAnom?0.5+Math.random()*0.5:Math.random()*0.12;
+    anomCtx.fillStyle=isAnom?'#ef4444':'rgba(88,166,255,0.3)';
+    anomCtx.fillRect(i/n*w,h-v*h,w/n-1,v*h);
+  }
+  requestAnimationFrame(drawAnomSpectrum);
+}
+
+/* Anomaly timeline 24h */
+let anomTimeData = new Array(24).fill(0).map((_,i)=>Math.floor(Math.random()*20));
+function drawAnomTimeline(){
+  if(!anomTimeCtx) return;
+  const cv=anomTimeCanvas, w=cv.width, h=cv.height;
+  anomTimeCtx.fillStyle='#000'; anomTimeCtx.fillRect(0,0,w,h);
+  const max=Math.max(...anomTimeData,1);
+  anomTimeData.forEach((v,i)=>{
+    const bw=w/24;
+    const bh=v/max*(h-4);
+    const pct=v/20;
+    const r=Math.floor(pct*220), g=Math.floor((1-pct)*180);
+    anomTimeCtx.fillStyle=`rgb(${r},${g},30)`;
+    anomTimeCtx.fillRect(i*bw,h-bh,bw-1,bh);
+  });
+  anomTimeCtx.fillStyle='rgba(255,255,255,0.3)';
+  anomTimeCtx.font='8px monospace';
+  [0,6,12,18].forEach(h2=>{ anomTimeCtx.fillText(h2+'h',h2/24*w,h-1); });
+}
+
+/* Signal map */
+const SIG_TRANSMITTERS=[
+  {label:'A',x:0.25,y:0.3,color:'#22c55e'},
+  {label:'B',x:0.7,y:0.25,color:'#eab308'},
+  {label:'C',x:0.5,y:0.75,color:'#ef4444'},
+];
+function drawSigMap(){
+  if(!sigmapCtx) return;
+  const w=sigmapCanvas2.width, h=sigmapCanvas2.height;
+  sigmapCtx.fillStyle='#000'; sigmapCtx.fillRect(0,0,w,h);
+  sigmapCtx.strokeStyle='rgba(88,166,255,0.07)';
+  for(let gx=0;gx<w;gx+=20){ sigmapCtx.beginPath(); sigmapCtx.moveTo(gx,0); sigmapCtx.lineTo(gx,h); sigmapCtx.stroke(); }
+  for(let gy=0;gy<h;gy+=20){ sigmapCtx.beginPath(); sigmapCtx.moveTo(0,gy); sigmapCtx.lineTo(w,gy); sigmapCtx.stroke(); }
+  if(measEnabled) sigmapT+=0.02;
+  SIG_TRANSMITTERS.forEach((t,i)=>{
+    const px=t.x*w, py=t.y*h;
+    const pulse=(Math.sin(sigmapT*2+i)+1)/2;
+    sigmapCtx.beginPath(); sigmapCtx.arc(px,py,6+pulse*10,0,Math.PI*2);
+    sigmapCtx.strokeStyle=t.color; sigmapCtx.globalAlpha=0.5-pulse*0.3; sigmapCtx.stroke();
+    sigmapCtx.globalAlpha=1;
+    sigmapCtx.fillStyle=t.color; sigmapCtx.beginPath(); sigmapCtx.arc(px,py,4,0,Math.PI*2); sigmapCtx.fill();
+    sigmapCtx.font='10px monospace'; sigmapCtx.fillStyle='#fff';
+    sigmapCtx.fillText('TX-'+t.label,px+6,py-6);
+  });
+  sigmapCtx.strokeStyle='rgba(167,139,250,0.4)'; sigmapCtx.setLineDash([4,3]);
+  for(let i=0;i<SIG_TRANSMITTERS.length;i++)
+    for(let j=i+1;j<SIG_TRANSMITTERS.length;j++){
+      sigmapCtx.beginPath();
+      sigmapCtx.moveTo(SIG_TRANSMITTERS[i].x*w,SIG_TRANSMITTERS[i].y*h);
+      sigmapCtx.lineTo(SIG_TRANSMITTERS[j].x*w,SIG_TRANSMITTERS[j].y*h);
+      sigmapCtx.stroke();
+    }
+  sigmapCtx.setLineDash([]);
+  requestAnimationFrame(drawSigMap);
+}
+
+/* ADS-B radar */
+function drawAdsbRadar(){
+  if(!adsbCtx) return;
+  const w=adsbCanvas.width, h=adsbCanvas.height;
+  const cx=w/2, cy=h/2, r=Math.min(w,h)/2-4;
+  if(r<=0){ requestAnimationFrame(drawAdsbRadar); return; }
+  adsbCtx.fillStyle='#000'; adsbCtx.fillRect(0,0,w,h);
+  adsbCtx.strokeStyle='rgba(0,255,100,0.2)';
+  [0.33,0.66,1].forEach(f=>{ adsbCtx.beginPath(); adsbCtx.arc(cx,cy,r*f,0,Math.PI*2); adsbCtx.stroke(); });
+  adsbCtx.beginPath(); adsbCtx.moveTo(cx-r,cy); adsbCtx.lineTo(cx+r,cy);
+  adsbCtx.moveTo(cx,cy-r); adsbCtx.lineTo(cx,cy+r); adsbCtx.stroke();
+  adsbT+=0.03;
+  const sa=adsbT%(Math.PI*2);
+  adsbCtx.beginPath(); adsbCtx.moveTo(cx,cy);
+  adsbCtx.lineTo(cx+r*Math.cos(sa),cy+r*Math.sin(sa));
+  adsbCtx.strokeStyle='rgba(0,255,100,0.7)'; adsbCtx.lineWidth=1; adsbCtx.stroke();
+  if(offState.adsb&&offState.adsb.active){
+    const ang=adsbT*0.6;
+    const px=cx+r*0.6*Math.cos(ang), py=cy+r*0.6*Math.sin(ang);
+    adsbCtx.fillStyle='#ff4444'; adsbCtx.beginPath(); adsbCtx.arc(px,py,3,0,Math.PI*2); adsbCtx.fill();
+    adsbCtx.fillStyle='#fff'; adsbCtx.font='8px monospace';
+    adsbCtx.fillText(document.getElementById('adsb-callsign').value,px+4,py);
+  }
+  requestAnimationFrame(drawAdsbRadar);
+}
+
+/* Sweep canvas */
+let sweepData = new Array(600).fill(-100);
+let sweepMinHold = new Array(600).fill(-100);
+let sweepMaxHold = new Array(600).fill(-100);
+function drawSweepCanvas(){
+  if(!sweepCtx) return;
+  const cv=sweepCanvas2, w=cv.width, h=cv.height;
+  sweepCtx.fillStyle='#000'; sweepCtx.fillRect(0,0,w,h);
+  sweepCtx.strokeStyle='rgba(255,255,255,0.05)';
+  for(let i=0;i<=6;i++){ const y=h*i/6; sweepCtx.beginPath(); sweepCtx.moveTo(0,y); sweepCtx.lineTo(w,y); sweepCtx.stroke(); }
+  const minDb=-110, maxDb=-30;
+  const labels=['0','1','2','3','4','5','6'];
+  sweepCtx.fillStyle='rgba(255,255,255,0.3)'; sweepCtx.font='10px monospace';
+  labels.forEach((l,i)=>{ sweepCtx.fillText(l+'G',i/6*w+2,h-3); });
+  // min hold (green)
+  sweepCtx.beginPath();
+  sweepMinHold.forEach((v,i)=>{ const x=i/sweepMinHold.length*w; const y=h-(v-minDb)/(maxDb-minDb)*h; if(i===0) sweepCtx.moveTo(x,y); else sweepCtx.lineTo(x,y); });
+  sweepCtx.strokeStyle='rgba(34,197,94,0.4)'; sweepCtx.lineWidth=1; sweepCtx.stroke();
+  // max hold (red)
+  sweepCtx.beginPath();
+  sweepMaxHold.forEach((v,i)=>{ const x=i/sweepMaxHold.length*w; const y=h-(v-minDb)/(maxDb-minDb)*h; if(i===0) sweepCtx.moveTo(x,y); else sweepCtx.lineTo(x,y); });
+  sweepCtx.strokeStyle='rgba(239,68,68,0.5)'; sweepCtx.stroke();
+  // current (blue)
+  sweepCtx.beginPath();
+  sweepData.forEach((v,i)=>{ const x=i/sweepData.length*w; const y=h-(v-minDb)/(maxDb-minDb)*h; if(i===0) sweepCtx.moveTo(x,y); else sweepCtx.lineTo(x,y); });
+  sweepCtx.strokeStyle='#58a6ff'; sweepCtx.lineWidth=1.5; sweepCtx.stroke();
+  const grad=sweepCtx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(88,166,255,0.2)'); grad.addColorStop(1,'rgba(88,166,255,0)');
+  sweepCtx.lineTo(w,h); sweepCtx.lineTo(0,h); sweepCtx.closePath(); sweepCtx.fillStyle=grad; sweepCtx.fill();
+  // sweep cursor
+  if(sweepOn){
+    const cx=sweepPct/100*w;
+    sweepCtx.strokeStyle='#eab308'; sweepCtx.lineWidth=1.5;
+    sweepCtx.beginPath(); sweepCtx.moveTo(cx,0); sweepCtx.lineTo(cx,h); sweepCtx.stroke();
+  }
+  requestAnimationFrame(drawSweepCanvas);
+}
+
+/* Audio wave */
+function drawAudioWave(){
+  if(!audioWaveCtx) return;
+  const cv=audioWaveCanvas2, w=cv.width, h=cv.height;
+  audioWaveCtx.fillStyle='#000'; audioWaveCtx.fillRect(0,0,w,h);
+  audioWaveCtx.strokeStyle='rgba(167,139,250,0.8)'; audioWaveCtx.lineWidth=1.5;
+  audioWaveCtx.beginPath();
+  if(audioOn){
+    audioWaveT+=0.04;
+    for(let x=0;x<w;x++){
+      const t2=x/w*Math.PI*8+audioWaveT;
+      const amp=0.3+0.15*Math.sin(audioWaveT*0.5);
+      const y=h/2 + amp*h/2*Math.sin(t2)*(0.8+0.2*Math.sin(t2*3.7));
+      if(x===0) audioWaveCtx.moveTo(x,y); else audioWaveCtx.lineTo(x,y);
+    }
+  } else {
+    audioWaveCtx.moveTo(0,h/2); audioWaveCtx.lineTo(w,h/2);
+  }
+  audioWaveCtx.stroke();
+  requestAnimationFrame(drawAudioWave);
+}
+
+/* Audio spectrum */
+function drawAudioSpec(){
+  if(!audioSpecCtx) return;
+  const cv=audioSpecCanvas2, w=cv.width, h=cv.height;
+  audioSpecCtx.fillStyle='rgba(0,0,0,0.6)'; audioSpecCtx.fillRect(0,0,w,h);
+  if(audioOn){
+    const n=64;
+    for(let i=0;i<n;i++){
+      const v=Math.random()*0.7*Math.exp(-i/n*2);
+      audioSpecCtx.fillStyle=`hsl(${260+i*2},80%,${40+v*30}%)`;
+      audioSpecCtx.fillRect(i/n*w,h-v*h,w/n-1,v*h);
+    }
+  }
+  requestAnimationFrame(drawAudioSpec);
+}
+
+/* Hop detector */
+let hopFreqs = new Array(20).fill(0).map(()=>Math.random());
+function drawHopDetector(){
+  if(!hopCtx) return;
+  const cv=hopCanvas2, w=cv.width, h=cv.height;
+  hopCtx.fillStyle='rgba(0,0,0,0.5)'; hopCtx.fillRect(0,0,w,h);
+  hopT+=0.05;
+  hopFreqs.forEach((f,i)=>{
+    const x=(Math.sin(f*100+hopT*2)+1)/2*w;
+    const y=i/hopFreqs.length*h;
+    hopCtx.fillStyle='rgba(34,197,94,0.8)';
+    hopCtx.fillRect(x,y,3,3);
+  });
+  requestAnimationFrame(drawHopDetector);
+}
+
+/* Signal timeline */
+const SIG_COLORS=['#22c55e','#eab308','#ef4444','#22d3ee','#a78bfa'];
+let sigTimelineBuffers = SIG_COLORS.map(()=>new Array(80).fill(-90));
+function drawSigTimeline(){
+  if(!sigTimeCtx) return;
+  const cv=sigTimeCanvas2, w=cv.width, h=cv.height;
+  sigTimeCtx.fillStyle='#000'; sigTimeCtx.fillRect(0,0,w,h);
+  const minDb=-110, maxDb=-40;
+  SIG_COLORS.forEach((c,ci)=>{
+    if(measEnabled){
+      sigTimelineBuffers[ci].push(-90+Math.random()*30+ci*4);
+      if(sigTimelineBuffers[ci].length>80) sigTimelineBuffers[ci].shift();
+    }
+    sigTimeCtx.beginPath();
+    sigTimelineBuffers[ci].forEach((v,i)=>{
+      const x=i/80*w; const y=h-(v-minDb)/(maxDb-minDb)*h;
+      if(i===0) sigTimeCtx.moveTo(x,y); else sigTimeCtx.lineTo(x,y);
+    });
+    sigTimeCtx.strokeStyle=c; sigTimeCtx.lineWidth=1; sigTimeCtx.stroke();
+  });
+  requestAnimationFrame(drawSigTimeline);
+}
+
+/* Heatmap */
+function drawHeatmap(){
+  if(!heatCtx) return;
+  const cv=heatCanvas2, w=cv.width, h=cv.height;
+  heatCtx.fillStyle='#000'; heatCtx.fillRect(0,0,w,h);
+  const hoursN=24, binsN=60;
+  const cellW=w/hoursN, cellH=h/binsN;
+  for(let hour=0;hour<hoursN;hour++)
+    for(let bin=0;bin<binsN;bin++){
+      const v=Math.random();
+      const hotSpot=(bin>10&&bin<14)||(bin>35&&bin<38)||(bin>50&&bin<54);
+      const intensity=hotSpot?v*0.9+0.1:v*0.15;
+      heatCtx.fillStyle=`rgba(${Math.floor(intensity*255)},${Math.floor((1-intensity)*120)},30,0.85)`;
+      heatCtx.fillRect(hour*cellW,bin*cellH,cellW-0.5,cellH-0.5);
+    }
+}
+
+let animT=0;
+function animLoop(){
+  if(measEnabled){ animT+=0.02; const data=drawSpectrum(animT); drawWaterfall(data); }
+  drawIQ(animT);
+  drawSnrHist();
+  requestAnimationFrame(animLoop);
+}
+</script>
+
+<script>
+/* ======================= OFENSYWA ======================= */
+const offModules={
+  jammer:{name:'RF Jammer'},spoofer:{name:'Signal Spoofer'},replay:{name:'Replay Attack'},
+  fuzzer:{name:'RF Fuzzer'},cracker:{name:'Rolling Code Cracker'},seljam:{name:'Selective Jammer'},
+  deauth:{name:'DeAuth Flood'},adsb:{name:'ADS-B Ghost Injector'},pocsag:{name:'POCSAG Injector'},
+  tpms:{name:'TPMS Spoofer'},drone:{name:'Drone Freq Attack'},
+};
+const offState={};
+Object.keys(offModules).forEach(k=>offState[k]={active:false,counter:0,timer:null});
+
+function offCounterText(mod,c){
+  switch(mod){
+    case 'jammer': return 'Czas aktywny: '+c+'s';
+    case 'spoofer': return 'Wysłano pakietów: '+c;
+    case 'replay': { const max=parseInt(document.getElementById('replay-count').value,10)||3; return 'Odtworzono: '+Math.min(c,max)+' / '+max; }
+    case 'fuzzer': return 'Próby: '+c;
+    case 'cracker': return 'Prawdopodobieństwo: '+Math.min(99,c)+'%';
+    case 'seljam': return 'Trafień: '+c;
+    case 'deauth': return 'Wysłano deauth: '+c;
+    case 'adsb': return 'Wysłano ramek: '+c;
+    case 'pocsag': return 'Wysłano: '+c;
+    case 'tpms': return 'Wysłano ramek: '+c;
+    case 'drone': return 'Pakiety zakłócone: '+c;
+  }
+  return '';
+}
+
+function fireOff(mod){
+  const st=offState[mod];
+  const pill=document.getElementById('pill-'+mod);
+  st.active=!st.active;
+  if(st.active){
+    pill.textContent='AKTYWNY'; pill.className='pill pill-active';
+    thrCount++;
+    document.getElementById('thrVal').textContent=thrCount;
+    addLog('<span style="color:#ff4444">⚔️ '+offModules[mod].name+' — AKTYWACJA</span>');
+    addOpLog('ATTACK START: '+offModules[mod].name);
+    st.timer=setInterval(()=>{
+      if(!measEnabled) return;
+      st.counter++;
+      const el=document.getElementById(mod+'-counter');
+      if(el) el.textContent=offCounterText(mod,st.counter);
+      if(mod==='cracker'){ const bar=document.getElementById('cracker-bar'); if(bar) bar.style.width=Math.min(100,st.counter)+'%'; }
+      if(mod==='fuzzer'){ const bar=document.getElementById('fuzzer-bar'); if(bar) bar.style.width=(st.counter%100)+'%'; }
+      if(mod==='replay'){ const bar=document.getElementById('replay-bar'); const max=parseInt(document.getElementById('replay-count').value,10)||3; if(bar) bar.style.width=Math.min(100,st.counter/max*100)+'%'; }
+    },400);
+  } else {
+    pill.textContent='IDLE'; pill.className='pill pill-idle';
+    clearInterval(st.timer);
+    addLog('⚔️ '+offModules[mod].name+' — zatrzymano. ('+st.counter+' iteracji)');
+    addOpLog('ATTACK STOP: '+offModules[mod].name+' cnt='+st.counter);
+  }
+}
+</script>
+
+<script>
+/* ======================= DEFENSYWA ======================= */
+let shieldPct=83;
+function updateShield(){
+  shieldPct+=(Math.random()-0.5)*2;
+  shieldPct=Math.max(10,Math.min(99,shieldPct));
+  const ring=document.getElementById('shieldRing');
+  const circumference=327;
+  ring.setAttribute('stroke-dashoffset',(circumference*(1-shieldPct/100)).toFixed(1));
+  let color='#22c55e'; if(shieldPct<70)color='#eab308'; if(shieldPct<40)color='#ef4444';
+  ring.setAttribute('stroke',color);
+  document.getElementById('shieldPct').textContent=Math.round(shieldPct)+'%';
+}
+
+const ALERT_TYPES=[{t:'JAMMER',c:'#ef4444'},{t:'SPOOF',c:'#f97316'},{t:'ANOMALY',c:'#eab308'},{t:'ROGUE TX',c:'#a78bfa'},{t:'FHSS',c:'#22d3ee'}];
+function pushAlert(){
+  const box=document.getElementById('alertList');
+  if(!box) return;
+  const a=ALERT_TYPES[Math.floor(Math.random()*ALERT_TYPES.length)];
+  const freqs=[433.92,868.0,915.0,2437.0,1090.0,315.0,5800.0];
+  const f=freqs[Math.floor(Math.random()*freqs.length)];
+  const div=document.createElement('div');
+  div.className='threat-item fade-in'; div.style.borderLeftColor=a.c;
+  div.innerHTML=`<b style="color:${a.c}">${a.t}</b> <span>${f.toFixed(2)} MHz</span>
+    <span class="mini-label" style="margin-left:auto;">${new Date().toLocaleTimeString('pl-PL')}</span>`;
+  box.prepend(div);
+  while(box.children.length>30) box.removeChild(box.lastChild);
+  anomPerHour++;
+  blockedTotal+=Math.floor(Math.random()*3);
+  document.getElementById('anomPerH').textContent=anomPerHour;
+  document.getElementById('blockedCount').textContent=blockedTotal;
+}
+
+const DEFENSE_RULES=[
+  {id:1,txt:'Jeśli sygnał > -60dBm na 433MHz → zablokuj',on:true},
+  {id:2,txt:'Jeśli wykryto deauth flood → hop kanału',on:true},
+  {id:3,txt:'Jeśli anomalia GPS spoof → alarm',on:false},
+  {id:4,txt:'Jeśli nieznany TX 3x w 10 min → HOSTILE',on:true},
+  {id:5,txt:'Jeśli replay attack → rolling code lockout',on:false},
+  {id:6,txt:'Jeśli FHSS wykryte → fingerprint TX',on:true},
+  {id:7,txt:'Jeśli power spike > 20dB → alert krytyczny',on:true},
+];
+function renderDefenseRules(){
+  const box=document.getElementById('autoDefenseList');
+  if(!box) return;
+  box.innerHTML=DEFENSE_RULES.map(r=>`
+    <div class="rule-item">
+      <span>${r.txt}</span>
+      <label class="switch"><input type="checkbox" ${r.on?'checked':''} onchange="toggleRule(${r.id})"><span class="slider-tog"></span></label>
+    </div>`).join('');
+}
+function toggleRule(id){
+  const r=DEFENSE_RULES.find(x=>x.id===id); r.on=!r.on;
+  addLog('Automat #'+id+' → '+(r.on?'WŁĄCZONY':'WYŁĄCZONY'));
+  addOpLog('DEFENSE RULE #'+id+': '+(r.on?'ON':'OFF'));
+}
+
+/* Whitelist/Blacklist */
+function renderWhitelist(){
+  const box=document.getElementById('whitelistBox'); if(!box)return;
+  box.innerHTML=whitelistItems.map((f,i)=>`
+    <div class="wl-item"><span style="color:var(--green)">✔ ${f}</span>
+    <button class="btn small red" onclick="removeWL(${i})">✕</button></div>`).join('');
+}
+function renderBlacklist(){
+  const box=document.getElementById('blacklistBox'); if(!box)return;
+  box.innerHTML=blacklistItems.map((f,i)=>`
+    <div class="wl-item"><span style="color:var(--red)">✗ ${f}</span>
+    <button class="btn small green" onclick="removeBL(${i})">✕</button></div>`).join('');
+}
+function addWhitelist(){
+  const inp=document.getElementById('wlFreqInput');
+  if(inp&&inp.value.trim()){ whitelistItems.push(inp.value.trim()); inp.value=''; renderWhitelist(); addLog('Whitelist: dodano '+whitelistItems[whitelistItems.length-1]); }
+}
+function addBlacklist(){
+  const inp=document.getElementById('blFreqInput');
+  if(inp&&inp.value.trim()){ blacklistItems.push(inp.value.trim()); inp.value=''; renderBlacklist(); addLog('Blacklist: dodano '+blacklistItems[blacklistItems.length-1]); }
+}
+function removeWL(i){ whitelistItems.splice(i,1); renderWhitelist(); }
+function removeBL(i){ blacklistItems.splice(i,1); renderBlacklist(); }
+
+function toggleGeofence(){
+  const on=document.getElementById('geofenceToggle').checked;
+  addLog('GeoFence: '+(on?'WŁĄCZONY':'WYŁĄCZONY')+' (radius '+document.getElementById('geofenceRadius').textContent+'m)');
+  addOpLog('GEOFENCE: '+(on?'ON':'OFF'));
+}
+</script>
+
+<script>
+/* ======================= DEKODER ======================= */
+function randHexByte(){ return Math.floor(Math.random()*256).toString(16).padStart(2,'0'); }
+let hexRows=[];
+function updateHexDump(){
+  const bytes=Array.from({length:16},randHexByte);
+  hexRows.push(bytes.join(' '));
+  if(hexRows.length>8) hexRows.shift();
+  const box=document.getElementById('hexDump');
+  if(box){ box.textContent=hexRows.map((r,i)=>('0x'+(i*16).toString(16).padStart(4,'0')+':  '+r)).join('\n'); box.scrollTop=box.scrollHeight; }
+}
+function updateBitStream(){
+  const box=document.getElementById('bitStream'); if(!box)return;
+  let html='';
+  const fields=['preamble','preamble','sync','devid','devid','payload','payload','payload','payload','crc'];
+  fields.forEach(f=>{ let bits=''; for(let i=0;i<8;i++) bits+=Math.random()>0.5?'1':'0'; html+=`<span class="field-${f}">${bits}</span> `; });
+  box.innerHTML=html;
+}
+function updateProtoDecodeTable(){
+  const tbody=document.getElementById('protoDecodeBody'); if(!tbody)return;
+  const preamble='AAAA',sync=(Math.random()*0xFFFF|0).toString(16).padStart(4,'0').toUpperCase();
+  const devid=(Math.random()*0xFFFFFF|0).toString(16).padStart(6,'0').toUpperCase();
+  const payload=(Math.random()*0xFFFFFFFF|0).toString(16).padStart(8,'0').toUpperCase();
+  const crc=(Math.random()*0xFFFF|0).toString(16).padStart(4,'0').toUpperCase();
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td class="field-preamble">${preamble}</td><td class="field-sync">${sync}</td>
+    <td class="field-devid">${devid}</td><td class="field-payload">${payload}</td><td class="field-crc">${crc}</td>`;
+  tbody.prepend(tr);
+  while(tbody.children.length>6) tbody.removeChild(tbody.lastChild);
+}
+const AUTO_DETECT_MSGS=[
+  'Wykryto: OOK 1024 baud, Manchester, 433.92MHz','Wykryto: FSK 2400 baud, 868.00MHz',
+  'Wykryto: PWM encoding, 315.00MHz','Wykryto: LoRa SF7 125kHz, 868.1MHz',
+  'Wykryto: POCSAG 1200 baud, 466.23MHz','Wykryto: D-STAR DV, 433.625MHz',
+];
+function pushAutoDetect(){
+  const box=document.getElementById('autoDetectList'); if(!box)return;
+  const div=document.createElement('div');
+  div.textContent='▸ '+AUTO_DETECT_MSGS[Math.floor(Math.random()*AUTO_DETECT_MSGS.length)];
+  box.prepend(div); while(box.children.length>6) box.removeChild(box.lastChild);
+}
+function pushHistory(){
+  const tbody=document.getElementById('historyBody'); if(!tbody)return;
+  const tr=document.createElement('tr');
+  const len=Math.floor(Math.random()*400)+32;
+  const freqs=['433.92 MHz','868.00 MHz','915.00 MHz','315.00 MHz','1090.00 MHz'];
+  const mods=['OOK','FSK','LoRa','AM','FM'];
+  tr.innerHTML=`<td>${new Date().toLocaleTimeString('pl-PL')}</td><td>${len} B</td>
+    <td>${freqs[Math.floor(Math.random()*freqs.length)]}</td><td>${mods[Math.floor(Math.random()*mods.length)]}</td>`;
+  tbody.prepend(tr); while(tbody.children.length>12) tbody.removeChild(tbody.lastChild);
+}
+const DEC_CONSOLE_MSGS=[
+  '[dsp] Sample buffer OK, 2.0 Msps','[decoder] Sync word found @0x1F','[crc] Checksum OK',
+  '[decoder] Manchester decode success','[dsp] Squelch open','[decoder] Frame length: 64 bits',
+  '[decoder] Unknown protocol, saving dump','[dsp] AGC adjusted -3dB',
+  '[decoder] Rolling code detected, 3 captures','[dsp] DCOffset corrected',
+];
+function pushDecConsole(){
+  const box=document.getElementById('decConsole'); if(!box)return;
+  const div=document.createElement('div');
+  div.textContent='> '+DEC_CONSOLE_MSGS[Math.floor(Math.random()*DEC_CONSOLE_MSGS.length)];
+  box.appendChild(div); box.scrollTop=box.scrollHeight; while(box.children.length>80) box.removeChild(box.firstChild);
+}
+// ADS-B live decode
+const ADSB_FLIGHTS=[
+  {icao:'3C6444',call:'LH1234',alt:35000,spd:450,hdg:270},
+  {icao:'400ED5',call:'BAW001',alt:28000,spd:380,hdg:95},
+  {icao:'A4A9B2',call:'UAL456',alt:39000,spd:490,hdg:180},
+  {icao:'485996',call:'RYR301',alt:33000,spd:420,hdg:330},
+];
+function updateAdsbDecode(){
+  const tbody=document.getElementById('adsbDecodeBody'); if(!tbody)return;
+  tbody.innerHTML=ADSB_FLIGHTS.map(f=>{
+    const alt=f.alt+(Math.random()-0.5)*200|0;
+    const spd=f.spd+(Math.random()-0.5)*20|0;
+    const hdg=(f.hdg+(Math.random()-0.5)*5+360)%360|0;
+    return `<tr><td>${f.icao}</td><td>${f.call}</td><td>${alt}</td><td>${spd}</td><td>${hdg}°</td></tr>`;
+  }).join('');
+}
+// Weather sensor
+function updateWeatherSensor(){
+  document.getElementById('wx-temp').textContent=(20+Math.random()*15).toFixed(1)+'°C';
+  document.getElementById('wx-hum').textContent=(40+Math.random()*50).toFixed(0)+'%';
+  document.getElementById('wx-pres').textContent=(1013+Math.random()*10-5).toFixed(1)+' hPa';
+  document.getElementById('wx-bat').textContent=(2.8+Math.random()*0.4).toFixed(2)+'V';
+  document.getElementById('wx-id').textContent='0x'+Math.floor(Math.random()*0xFFFF).toString(16).toUpperCase().padStart(4,'0');
+  document.getElementById('wx-time').textContent=new Date().toLocaleTimeString('pl-PL');
+}
+function buildCustomProtocol(){
+  const pr=document.getElementById('cpb-preamble').value;
+  const sy=document.getElementById('cpb-sync').value;
+  const pl=document.getElementById('cpb-paylen').value;
+  const cr=document.getElementById('cpb-crc').value;
+  const m=document.getElementById('cpb-mod').value;
+  document.getElementById('cpb-result').innerHTML=`<span style="color:var(--green)">✔ Dekoder zbudowany: ${m} | Preamb:${pr} Sync:${sy} Payload:${pl}b CRC-poly:0x${cr}</span>`;
+  addLog('🔧 Custom Protocol Builder: dekoder wygenerowany ('+m+')');
+  addOpLog('PROTO BUILD: '+m+' preamble='+pr+' sync='+sy+' len='+pl+'b');
+}
+function decoderTick(){
+  if(!measEnabled) return;
+  updateHexDump(); updateBitStream(); updateProtoDecodeTable();
+  pushAutoDetect(); pushHistory(); pushDecConsole();
+  updateAdsbDecode(); updateWeatherSensor();
+}
+</script>
+
+<script>
+/* ======================= SIGINT ======================= */
+const SIGINT_DB=[
+  {id:'SIG-001',f:'433.92 MHz',mod:'OOK',bw:'50 kHz',status:'KNOWN'},
+  {id:'SIG-002',f:'868.30 MHz',mod:'FSK',bw:'100 kHz',status:'KNOWN'},
+  {id:'SIG-003',f:'915.00 MHz',mod:'LoRa',bw:'125 kHz',status:'UNKNOWN'},
+  {id:'SIG-004',f:'2437.00 MHz',mod:'WiFi',bw:'20 MHz',status:'KNOWN'},
+  {id:'SIG-005',f:'2402.00 MHz',mod:'BLE',bw:'2 MHz',status:'KNOWN'},
+  {id:'SIG-006',f:'1090.00 MHz',mod:'ADS-B PPM',bw:'2 MHz',status:'KNOWN'},
+  {id:'SIG-007',f:'315.00 MHz',mod:'ASK',bw:'50 kHz',status:'HOSTILE'},
+  {id:'SIG-008',f:'462.56 MHz',mod:'FM',bw:'12.5 kHz',status:'UNKNOWN'},
+  {id:'SIG-009',f:'156.80 MHz',mod:'FM',bw:'25 kHz',status:'KNOWN'},
+  {id:'SIG-010',f:'400.00 MHz',mod:'FSK',bw:'25 kHz',status:'HOSTILE'},
+  {id:'SIG-011',f:'1575.42 MHz',mod:'BPSK',bw:'2 MHz',status:'KNOWN'},
+  {id:'SIG-012',f:'27.185 MHz',mod:'AM',bw:'10 kHz',status:'KNOWN'},
+];
+function renderSigintDb(){
+  const tbody=document.getElementById('sigintBody'); if(!tbody)return;
+  tbody.innerHTML=SIGINT_DB.map(s=>{
+    const dbm=(-95+Math.random()*30).toFixed(1);
+    const captures=Math.floor(Math.random()*900)+10;
+    const cls=s.status==='KNOWN'?'pill-known':(s.status==='HOSTILE'?'pill-hostile':'pill-unknown');
+    return `<tr><td>${s.id}</td><td>${s.f}</td><td>${s.mod}</td><td>${s.bw}</td><td>${dbm}</td>
+      <td>2026-0${Math.floor(Math.random()*6)+1}-1${Math.floor(Math.random()*9)}</td>
+      <td>${captures}</td><td><span class="pill ${cls}">${s.status}</span></td></tr>`;
+  }).join('');
+}
+let fingerPct=0;
+const FINGER_MATCHES=['Keyless BMW 3xx','Toyota Smart Key v2','Garage Chamberlain 315','Zigbee HA gateway','LoRaWAN nodo EU868','Bresser 5-in-1 Sensor'];
+function updateFingerprinter(){
+  fingerPct=(fingerPct+Math.random()*8)%100;
+  const bar=document.getElementById('fingerBar'); if(bar) bar.style.width=fingerPct.toFixed(0)+'%';
+  const match=FINGER_MATCHES[Math.floor(Math.random()*FINGER_MATCHES.length)];
+  const res=document.getElementById('fingerResult');
+  if(res) res.innerHTML='Pasuje do: <b style="color:var(--purple)">'+match+' ('+(90+Math.random()*9.5).toFixed(1)+'%)</b>';
+}
+function classifySignal(){
+  const model=document.getElementById('aiModel').value;
+  const classes=['OOK Remote','FSK Sensor','LoRa Node','Rogue TX','Keyfob','BLE Beacon','Radar Pulse'];
+  const cls=classes[Math.floor(Math.random()*classes.length)];
+  const conf=(70+Math.random()*29).toFixed(1);
+  document.getElementById('aiResult').innerHTML='('+model+'): <b style="color:var(--cyan)">'+cls+'</b> '+conf+'%';
+  addLog('🤖 AI ('+model+'): '+cls+' @ '+conf+'%');
+  addOpLog('AI CLASSIFY: '+cls+' conf='+conf+'%');
+}
+function calcTdoa(){
+  const x=(40+Math.random()*40).toFixed(1);
+  const y=(40+Math.random()*80).toFixed(1);
+  document.getElementById('tdoaResult').textContent=`X:${x}m, Y:${y}m (błąd ±${(2+Math.random()*3).toFixed(1)}m)`;
+  addLog('📐 TDOA: pozycja TX obliczona.');
+  addOpLog('TDOA RESULT: X='+x+'m Y='+y+'m');
+}
+</script>
+
+<script>
+/* ======================= PROTOKOŁY ======================= */
+const BAND_PLAN=[
+  {n:'VLF Beacon',f:100000,m:'CW',use:'Nawigacja'},
+  {n:'LF Broadcast',f:200000,m:'AM',use:'Radiofonia LF'},
+  {n:'MF AM Radio',f:1000000,m:'AM',use:'Radiofonia'},
+  {n:'CB Radio',f:27000000,m:'AM/FM',use:'CB'},
+  {n:'FM Broadcast',f:100000000,m:'WBFM',use:'Radiofonia FM'},
+  {n:'Airband VHF',f:124000000,m:'AM',use:'Lotnictwo'},
+  {n:'VHF Marine',f:156800000,m:'FM',use:'Morski Ch.16'},
+  {n:'NOAA Weather',f:162550000,m:'FM',use:'Pogoda US'},
+  {n:'2m Amateur',f:144000000,m:'FM',use:'Amatorskie'},
+  {n:'315 MHz ISM',f:315000000,m:'ASK/OOK',use:'Piloty US'},
+  {n:'433 MHz ISM',f:433920000,m:'OOK/FSK',use:'IoT, piloty EU'},
+  {n:'70cm Amateur',f:432000000,m:'FM/SSB',use:'Amatorskie'},
+  {n:'FRS/GMRS',f:462562500,m:'FM',use:'Radiotelefony US'},
+  {n:'DMR Commercial',f:450000000,m:'DMR',use:'Radio cyfrowe'},
+  {n:'868 MHz ISM',f:868000000,m:'FSK/LoRa',use:'IoT EU'},
+  {n:'915 MHz ISM',f:915000000,m:'FSK/LoRa',use:'IoT US'},
+  {n:'GSM900 DL',f:935000000,m:'GMSK',use:'GSM'},
+  {n:'ADS-B',f:1090000000,m:'PPM',use:'Śledzenie samolotów'},
+  {n:'GPS L1',f:1575420000,m:'BPSK',use:'Nawigacja satelitarna'},
+  {n:'GPS L2',f:1227600000,m:'BPSK',use:'Precyzja GPS'},
+  {n:'GALILEO E1',f:1575420000,m:'BOC',use:'Nav EU'},
+  {n:'GSM1800',f:1800000000,m:'GMSK',use:'GSM 1800'},
+  {n:'DECT',f:1900000000,m:'GFSK',use:'Telefony bezprzewodowe'},
+  {n:'UMTS/3G',f:2100000000,m:'WCDMA',use:'Telefonia 3G'},
+  {n:'BLE Advertising',f:2402000000,m:'GFSK',use:'Bluetooth LE'},
+  {n:'WiFi 2.4GHz',f:2437000000,m:'OFDM',use:'WLAN 2.4'},
+  {n:'WiFi 5GHz',f:5180000000,m:'OFDM',use:'WLAN 5'},
+  {n:'ISM 5.8GHz',f:5800000000,m:'FHSS',use:'Drony, wideo'},
+];
+function renderBandPlan(){
+  const tbody=document.getElementById('bandplanBody'); if(!tbody)return;
+  tbody.innerHTML=BAND_PLAN.map(b=>`
+    <tr class="clickrow" onclick="setPreset(${b.f},'${b.n}')">
+      <td>${b.n}</td><td>${fmtFreq(b.f)}</td><td>${b.m}</td><td>${b.use}</td>
+      <td><span class="pill pill-known">AKTYWNE</span></td>
+    </tr>`).join('');
+}
+function reverseProtocol(){
+  document.getElementById('reverseStatus').innerHTML='<span style="color:var(--green)">✔ Analiza: OOK, 32-bit, Manchester encoding, CRC-8</span>';
+  document.getElementById('protoBlockDiagram').innerHTML=`
+    <div class="blockbox">RF Front</div><span class="blockarrow">→</span>
+    <div class="blockbox">Demod OOK</div><span class="blockarrow">→</span>
+    <div class="blockbox">Bit Sync</div><span class="blockarrow">→</span>
+    <div class="blockbox">Frame Dec</div><span class="blockarrow">→</span>
+    <div class="blockbox">CRC-8</div><span class="blockarrow">→</span>
+    <div class="blockbox">Output</div>`;
+  addLog('🛰️ Protocol Reverser: analiza zakończona.');
+  addOpLog('PROTO REVERSE: OOK 32-bit Manchester CRC-8');
+}
+const KNOWN_PROTOCOLS=[
+  {ico:'📻',n:'OOK',f:'300–928 MHz',d:'On-Off Keying, piloty.'},
+  {ico:'📶',n:'FSK',f:'315–915 MHz',d:'Frequency Shift Keying.'},
+  {ico:'🌐',n:'LoRa',f:'433/868/915 MHz',d:'Chirp SS, IoT daleki zasięg.'},
+  {ico:'🐝',n:'Zigbee',f:'2.4 GHz',d:'Sieć mesh smart home.'},
+  {ico:'🌊',n:'Z-Wave',f:'868/908 MHz',d:'Dom inteligentny.'},
+  {ico:'🔵',n:'BLE',f:'2.4 GHz',d:'Bluetooth Low Energy.'},
+  {ico:'🏃',n:'ANT+',f:'2.4 GHz',d:'Czujniki sportowe.'},
+  {ico:'📟',n:'POCSAG',f:'138–470 MHz',d:'Protokół pagerowy.'},
+  {ico:'📡',n:'DMR',f:'136–960 MHz',d:'Digital Mobile Radio.'},
+  {ico:'🚔',n:'P25',f:'150–800 MHz',d:'Radio służb mundurowych.'},
+  {ico:'🎙️',n:'D-STAR',f:'VHF/UHF',d:'Amatorskie radio cyfrowe.'},
+  {ico:'🛰️',n:'APRS',f:'144.8 MHz',d:'Automatic Packet Reporting.'},
+  {ico:'🚗',n:'TPMS',f:'315/433 MHz',d:'Ciśnienie opon.'},
+  {ico:'🔑',n:'KeeLoq',f:'315/433 MHz',d:'Rolling code piloty.'},
+  {ico:'✈️',n:'ADS-B',f:'1090 MHz',d:'Śledzenie samolotów.'},
+  {ico:'🌡️',n:'ISM Sensor',f:'868 MHz',d:'Czujniki pogodowe.'},
+];
+function renderKnownProtocols(){
+  const grid=document.getElementById('knownProtoGrid'); if(!grid)return;
+  grid.innerHTML=KNOWN_PROTOCOLS.map(p=>`
+    <div class="protocard">
+      <div class="pt">${p.ico} ${p.n}</div>
+      <div class="pf">Freq: ${p.f}</div>
+      <div class="pf">${p.d}</div>
+    </div>`).join('');
+}
+let scanPct=0, scannerRunning=false;
+const SCAN_MSGS=['Aktywność: 433.92 MHz (OOK, -72dBm)','Aktywność: 868.30 MHz (FSK, -80dBm)',
+  'Aktywność: 2437 MHz (WiFi, -55dBm)','Aktywność: 1090 MHz (ADS-B, -68dBm)',
+  'Aktywność: 915.00 MHz (LoRa, -85dBm)','Aktywność: 315.00 MHz (ASK, -75dBm)'];
+function toggleScanner(){
+  scannerRunning=!scannerRunning;
+  const btn=document.querySelector('[onclick="toggleScanner()"]');
+  if(btn){ btn.textContent=scannerRunning?'■ STOP':'▶ SCAN'; btn.className=scannerRunning?'btn red':'btn cyan'; }
+  addLog(scannerRunning?'🔄 Scanner uruchomiony':'🔄 Scanner zatrzymany');
+}
+function scannerTick(){
+  if(!measEnabled||!scannerRunning) return;
+  scanPct=(scanPct+1.5)%100;
+  const bar=document.getElementById('scanBar'); if(bar) bar.style.width=scanPct+'%';
+  const lbl=document.getElementById('scanFreqLbl'); if(lbl) lbl.textContent=(scanPct*60).toFixed(0)+' MHz';
+  if(Math.random()<0.2){
+    const box=document.getElementById('scanActivityList'); if(!box)return;
+    const div=document.createElement('div');
+    div.className='mini-label'; div.style.color='var(--cyan)';
+    div.textContent='▸ '+SCAN_MSGS[Math.floor(Math.random()*SCAN_MSGS.length)];
+    box.prepend(div); while(box.children.length>12) box.removeChild(box.lastChild);
+  }
+}
+</script>
+
+<script>
+/* ======================= SWEEP TAB ======================= */
+let sweepRunning=false, sweepCurIdx=0, sweepStart=0, sweepStop=6000;
+function toggleSweep(){
+  sweepRunning=!sweepRunning;
+  const btn=document.getElementById('sweepBtn');
+  if(btn){ btn.textContent=sweepRunning?'■ STOP SWEEP':'▶ START SWEEP'; btn.className=sweepRunning?'btn red':'btn green'; }
+  if(sweepRunning){
+    sweepCurIdx=0; sweepPct=0;
+    sweepStart=parseFloat(document.getElementById('sw-start').value)||0;
+    sweepStop=parseFloat(document.getElementById('sw-stop').value)||6000;
+    sweepData=new Array(600).fill(-100);
+    sweepMinHold=new Array(600).fill(-100);
+    sweepMaxHold=new Array(600).fill(-130);
+    addLog('🔍 Sweep START: '+sweepStart+'–'+sweepStop+' MHz');
+    addOpLog('SWEEP START: '+sweepStart+'–'+sweepStop+'MHz');
+    // save history entry
+    addSweepHistory(sweepStart, sweepStop);
+  } else {
+    addLog('🔍 Sweep STOP @ '+sweepPct.toFixed(0)+'%');
+    addOpLog('SWEEP STOP @ '+sweepPct.toFixed(0)+'%');
+  }
+}
+function sweepTick(){
+  if(!measEnabled||!sweepRunning) return;
+  for(let i=0;i<6;i++){
+    const idx=sweepCurIdx%sweepData.length;
+    const freqMHz=sweepStart+(sweepStop-sweepStart)*(idx/sweepData.length);
+    const known=[433.92,868,915,2437,1090,315,156.8];
+    const isKnown=known.some(kf=>Math.abs(freqMHz-kf)<2);
+    const v=isKnown?(-80+Math.random()*20):(-105+Math.random()*10);
+    sweepData[idx]=v;
+    if(v>sweepMaxHold[idx]) sweepMaxHold[idx]=v;
+    if(v<sweepMinHold[idx]||sweepMinHold[idx]===-100) sweepMinHold[idx]=v;
+    sweepCurIdx++;
+    if(sweepCurIdx>=sweepData.length){
+      sweepRunning=false;
+      const btn=document.getElementById('sweepBtn');
+      if(btn){ btn.textContent='▶ START SWEEP'; btn.className='btn green'; }
+      addLog('🔍 Sweep zakończony. Wykryto '+sweepResultItems.length+' sygnałów.');
+      break;
+    }
+  }
+  sweepPct=sweepCurIdx/sweepData.length*100;
+  const pbar=document.getElementById('swBar'); if(pbar) pbar.style.width=sweepPct.toFixed(0)+'%';
+  const pct=document.getElementById('swPct'); if(pct) pct.textContent=sweepPct.toFixed(0)+'%';
+  const curFreq=sweepStart+(sweepStop-sweepStart)*(sweepCurIdx/sweepData.length);
+  const lbl=document.getElementById('swFreqLbl'); if(lbl) lbl.textContent=curFreq.toFixed(0)+' MHz';
+  if(Math.random()<0.08) addSweepResult();
+}
+let sweepResultItems=[];
+function addSweepResult(){
+  const tbody=document.getElementById('sweepResultBody'); if(!tbody)return;
+  const freqMHz=(sweepStart+(Math.random()*(sweepStop-sweepStart))).toFixed(2);
+  const power=(-90+Math.random()*50).toFixed(1);
+  const mods=['OOK','FSK','AM','FM','LoRa','CW'];
+  const bws=['25 kHz','50 kHz','100 kHz','200 kHz','1 MHz','2 MHz'];
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${freqMHz} MHz</td><td>${power}</td><td>${mods[Math.random()*mods.length|0]}</td>
+    <td>${bws[Math.random()*bws.length|0]}</td><td>${new Date().toLocaleTimeString('pl-PL')}</td>`;
+  tbody.prepend(tr); while(tbody.children.length>30) tbody.removeChild(tbody.lastChild);
+  sweepResultItems.push(freqMHz);
+}
+function addSweepHistory(start, stop){
+  const box=document.getElementById('sweepHistory'); if(!box)return;
+  const div=document.createElement('div');
+  div.className='threat-item fade-in'; div.style.borderLeftColor='var(--green)';
+  div.innerHTML=`<span style="color:var(--green)">🔍 ${start}–${stop} MHz</span>
+    <span class="mini-label">${new Date().toLocaleTimeString('pl-PL')}</span>`;
+  box.prepend(div); while(box.children.length>5) box.removeChild(box.lastChild);
+}
+</script>
+
+<script>
+/* ======================= AUDIO TAB ======================= */
+let audioRecInterval=null;
+function toggleAudio(){
+  audioOn=!audioOn;
+  const btn=document.getElementById('audioBtn');
+  if(btn){ btn.textContent=audioOn?'■ STOP':'▶ START'; btn.className=audioOn?'btn active-red':'btn purple'; }
+  addAudioLog(audioOn?'Audio demodulator START ('+document.getElementById('audio-mode').value+')':'Audio demodulator STOP');
+  if(audioOn){
+    setInterval(()=>{ if(!audioOn)return; updateRds(); },3000);
+  }
+}
+function updateRds(){
+  const stations=['RADIO ZET','RMF FM','TOK FM','ROCK RADIO','POLSKIE RADIO'];
+  const texts=['Najlepsze hity bez przerwy!','Wiadomości co godzinę','Twoje Radio','Rock nonstop','Program I - Kultura'];
+  const i=Math.floor(Math.random()*stations.length);
+  document.getElementById('rds-ps').textContent=stations[i];
+  document.getElementById('rds-rt').textContent=texts[i];
+  document.getElementById('rds-pi').textContent='0x'+Math.floor(Math.random()*0xFFFF).toString(16).toUpperCase().padStart(4,'0');
+  document.getElementById('rds-pty').textContent=['Pop Music','News','Rock','Talk','Culture'][Math.floor(Math.random()*5)];
+  document.getElementById('rds-tp').textContent=Math.random()>0.5?'YES':'NO';
+  document.getElementById('rds-time').textContent=new Date().toLocaleTimeString('pl-PL').slice(0,5);
+}
+function toggleAudioRec(){
+  audioRecOn=!audioRecOn;
+  const btn=document.getElementById('audioRecBtn');
+  if(btn){ btn.textContent=audioRecOn?'⏹ STOP REC':'⏺ NAGRAJ'; btn.className=audioRecOn?'btn active-on':'btn purple'; }
+  if(audioRecOn){
+    audioRecSec=0;
+    audioRecInterval=setInterval(()=>{
+      if(!audioRecOn) return;
+      audioRecSec++;
+      const h=audioRecSec/3600|0, m=(audioRecSec%3600)/60|0, s=audioRecSec%60;
+      const fmt=v=>String(v).padStart(2,'0');
+      const el=document.getElementById('audioRecTime'); if(el) el.textContent=`${fmt(h)}:${fmt(m)}:${fmt(s)}`;
+      const kb=audioRecSec*16; // ~16KB/s
+      const el2=document.getElementById('audioRecSize'); if(el2) el2.textContent=kb<1024?kb+' KB':(kb/1024).toFixed(1)+' MB';
+      const pct=Math.min(100,(audioRecSec/300)*100);
+      const bar=document.getElementById('audioRecBar'); if(bar) bar.style.width=pct+'%';
+    },1000);
+    addAudioLog('REC START ('+document.getElementById('audio-rec-fmt').value+')');
+  } else {
+    clearInterval(audioRecInterval);
+    addAudioLog('REC STOP — zapisano '+audioRecSec+'s');
+    addOpLog('AUDIO REC STOP: '+audioRecSec+'s '+document.getElementById('audio-rec-fmt').value);
+  }
+}
+function renderAudioChannels(){
+  const grid=document.getElementById('audioChannelGrid'); if(!grid)return;
+  grid.innerHTML=AUDIO_CHANNELS.map(ch=>`
+    <div class="audio-channel" onclick="tuneAudio('${ch.f}','${ch.n}')">
+      <span>${ch.n}</span><span class="mini-label">${ch.f} (${ch.m})</span>
+    </div>`).join('');
+}
+function tuneAudio(freq,name){
+  addAudioLog('📡 Strojenie na: '+name+' ('+freq+')');
+  addLog('🔊 Audio → '+name+' ('+freq+')');
+}
+</script>
+
+<script>
+/* ======================= MISJA TAB ======================= */
+let missions=JSON.parse(JSON.stringify(MISSIONS_DEFAULT));
+let targets=JSON.parse(JSON.stringify(TARGETS_DEFAULT));
+let missionInterval=null, missionStartTime=null;
+
+function renderMissions(){
+  const tbody=document.getElementById('missionBody'); if(!tbody)return;
+  tbody.innerHTML=missions.map((m,i)=>{
+    const cls=m.status==='AKTYWNA'?'pill-active':m.status==='ZAKOŃCZONA'?'pill-known':'pill-idle';
+    const prioColor=m.prio==='WYSOKI'?'var(--red)':m.prio==='ŚREDNI'?'var(--yellow)':'var(--txtdim)';
+    return `<tr><td>${i+1}</td><td>${m.name}</td><td>${m.target}</td><td>${m.freq} MHz</td>
+      <td style="color:${prioColor}">${m.prio}</td><td><span class="pill ${cls}">${m.status}</span></td></tr>`;
+  }).join('');
+}
+function renderTargets(){
+  const tbody=document.getElementById('targetBody'); if(!tbody)return;
+  tbody.innerHTML=targets.map(t=>{
+    const cls=t.threat==='KRYTYCZNE'?'var(--red)':t.threat==='WYSOKIE'?'var(--orange)':t.threat==='ŚREDNIE'?'var(--yellow)':'var(--green)';
+    return `<tr><td>${t.obj}</td><td>${t.loc}</td><td>${t.proto}</td><td>${t.last}</td>
+      <td style="color:${cls};font-weight:700">${t.threat}</td></tr>`;
+  }).join('');
+}
+function addMission(){
+  const n=document.getElementById('m-name').value;
+  const tg=document.getElementById('m-target').value;
+  const f=document.getElementById('m-freq').value;
+  const p=document.getElementById('m-prio').value;
+  if(!n.trim()) return;
+  missions.push({name:n,target:tg||'—',freq:f||'0',prio:p,status:'OCZEKUJE'});
+  renderMissions();
+  addOpLog('MISSION ADD: '+n+' @ '+f+'MHz prio='+p);
+  ['m-name','m-target','m-freq'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+function startMission(){
+  if(missionActive) return;
+  missionActive=true; missionSec=0; missionStartTime=Date.now();
+  document.getElementById('missionStatusPill').textContent='AKTYWNA';
+  document.getElementById('missionStatusPill').className='pill pill-active';
+  missionInterval=setInterval(()=>{
+    missionSec++;
+    const h=missionSec/3600|0, m=(missionSec%3600)/60|0, s=missionSec%60;
+    const fmt=v=>String(v).padStart(2,'0');
+    const el=document.getElementById('missionTimer');
+    if(el) el.textContent=`${fmt(h)}:${fmt(m)}:${fmt(s)}`;
+  },1000);
+  addOpLog('MISSION START');
+  addLog('<span style="color:var(--orange)">🎯 Misja AKTYWNA</span>');
+}
+function stopMission(){
+  if(!missionActive) return;
+  missionActive=false;
+  clearInterval(missionInterval);
+  document.getElementById('missionStatusPill').textContent='STANDBY';
+  document.getElementById('missionStatusPill').className='pill pill-idle';
+  addOpLog('MISSION STOP duration='+missionSec+'s');
+  addLog('<span style="color:var(--txtdim)">🎯 Misja zatrzymana ('+missionSec+'s)</span>');
+}
+function renderOpsecList(){
+  const box=document.getElementById('opsecList'); if(!box)return;
+  box.innerHTML=OPSEC_ITEMS.map((item,i)=>`
+    <div class="opsec-item">
+      <input type="checkbox" id="opsec-${i}" onchange="updateOpsecScore()">
+      <label for="opsec-${i}" style="cursor:pointer;">${item}</label>
+    </div>`).join('');
+}
+let opsecScore=67;
+function updateOpsecScore(){
+  const total=OPSEC_ITEMS.length;
+  const checked=document.querySelectorAll('[id^="opsec-"]:checked').length;
+  opsecScore=Math.round(checked/total*100);
+  const ring=document.getElementById('opsecRing'); if(!ring)return;
+  ring.setAttribute('stroke-dashoffset',(239*(1-opsecScore/100)).toFixed(1));
+  let color='#d4af37'; if(opsecScore<40)color='#ef4444'; if(opsecScore>70)color='#22c55e';
+  ring.setAttribute('stroke',color);
+  document.getElementById('opsecPct').textContent=opsecScore+'%';
+}
+</script>
+
+<script>
+/* ======================= SZTUKA WOJNY ======================= */
+const SUN_QUOTES=[
+  {pl:'"Znaj swojego wroga i znaj samego siebie, a w stu bitwach nigdy nie doznasz porażki."',ctx:'SIGINT + własny footprint emisji to podstawa przewagi elektronicznej.'},
+  {pl:'"Najwyższą formą sztuki wojennej jest pokonanie wroga bez walki."',ctx:'Skuteczne zagłuszanie/spoofing bez konfrontacji fizycznej.'},
+  {pl:'"Kiedy jesteś silny, udawaj słabego."',ctx:'Niska moc TX podczas rekonesansu utrudnia detekcję.'},
+  {pl:'"Szybkość jest esencją wojny."',ctx:'Krótkie okna transmisji zmniejszają ryzyko namierzenia TDOA.'},
+  {pl:'"Ten, kto zna miejsce i czas bitwy, może iść tysiąc mil."',ctx:'Znajomość band planu i harmonogramu emisji = przewaga taktyczna.'},
+  {pl:'"Wszystkie wojny opierają się na oszustwie."',ctx:'Spoofing i replay attack to cyfrowe formy dezinformacji.'},
+  {pl:'"Zwyciężają ci, którzy wiedzą, kiedy walczyć, a kiedy nie."',ctx:'Selektywne jamowanie tylko w krytycznych momentach.'},
+  {pl:'"Siła i słabość zależą od rozmieszczenia."',ctx:'Pozycja anten i kierunkowość decydują o zasięgu.'},
+  {pl:'"Kto jest pierwszy na polu i czeka, ten nie jest zmęczony."',ctx:'Pasywny nasłuch (RX-only) to bezpieczna forma rekonesansu.'},
+];
+const SUN_CHAPTERS=[
+  {num:'I',title:'Planowanie',rf:'Analiza widma przed operacją — SIGINT to plan bitwy.'},
+  {num:'II',title:'Prowadzenie wojny',rf:'Minimalizuj czas działania TX — każda sekunda to ryzyko.'},
+  {num:'III',title:'Strategia ataku',rf:'Najlepsza obrona to zdezorientowanie wroga (spoofing).'},
+  {num:'IV',title:'Pozycjonowanie',rf:'Kierunkowość anteny = kontrola zasięgu i OPSEC.'},
+  {num:'V',title:'Moc i impet',rf:'Burst TX — krótki, mocny sygnał trudniejszy do namierzenia.'},
+  {num:'VI',title:'Słabość i siła',rf:'Exploit słabych punktów protokołu (fuzzing, replay).'},
+  {num:'VII',title:'Manewrowanie',rf:'Frequency hopping uniemożliwia selektywne jamowanie.'},
+  {num:'VIII',title:'Zmienne taktyki',rf:'Adaptuj modulację do sytuacji — nie bądź przewidywalny.'},
+  {num:'IX',title:'Marsze',rf:'Skan przed akcją — poznaj środowisko RF przed wejściem.'},
+  {num:'X',title:'Teren',rf:'Środowisko miejskie vs. otwarta przestrzeń — inne zachowanie fal.'},
+  {num:'XI',title:'Dziewięć sytuacji',rf:'Klasyfikuj zagrożenia RF: KNOWN/UNKNOWN/HOSTILE.'},
+  {num:'XII',title:'Atak ogniem',rf:'Jammer to RF-fire — celuj precyzyjnie, by nie ujawnić pozycji.'},
+  {num:'XIII',title:'Wywiad',rf:'Fingerprinting i AI klasyfikacja to elektroniczny wywiad.'},
+];
+const SUN_RULES=[
+  '1. Zawsze monitoruj widmo przed akcją — SIGINT poprzedza każdą operację.',
+  '2. Minimalizuj czas własnej emisji — uniknij triangulacji TDOA.',
+  '3. Automaty obrony reagują szybciej niż operator ludzki.',
+  '4. Fałszywe sygnały (spoofing) są skuteczniejsze niż siłowe zagłuszanie.',
+  '5. Rozpoznaj protokół przed próbą jego złamania (Protocol Reverser).',
+  '6. Adaptuj taktykę do band planu środowiska.',
+  '7. Stosuj minimalną niezbędną moc TX — OPSEC ponad wszystko.',
+  '8. Dokumentuj wszystko w Operation Log — wiedza jest bronią.',
+];
+const SCENARIOS={
+  parking:'> Scenariusz: Rekon parkingu IoT\n> Krok 1: Pasywny sweep 433/868 MHz — identyfikacja czujników\n> Krok 2: Fingerprint sygnałów (Bresser, TPMS, Keyless)\n> Krok 3: Przechwyt 3x rolling code dla ewentualnej analizy\n> Krok 4: Klasyfikacja AI — poziom zagrożenia NISKI\n> Status: REKON ZAKOŃCZONY bez emisji TX',
+  building:'> Scenariusz: Analiza budynku biurowego\n> Krok 1: Sweep pełny 100MHz–6GHz, step 25kHz\n> Krok 2: Wykryto WiFi 2.4/5GHz, BLE, Zigbee, LoRa\n> Krok 3: Fingerprint WiFi AP — 3 sieci, 1 nieznana\n> Krok 4: ADS-B brak aktywności (brak lotniska)\n> Krok 5: Anomalia 315MHz — HOSTILE TX poza planem\n> Status: ALERT — nieznany nadajnik 315MHz',
+  defense:'> Scenariusz: Obrona instalacji krytycznej\n> Krok 1: Whitelist znanych freq — tylko autoryzowane TX\n> Krok 2: Automaty obrony AKTYWNE (5 reguł)\n> Krok 3: GeoFence ON — radius 500m\n> Krok 4: Radar zagrożeń — monitorowanie 360°\n> Krok 5: Hop detector FHSS — brak aktywności\n> Status: DEFENSYWA AKTYWNA',
+  drone:'> Scenariusz: Wykrycie drona\n> Krok 1: Sweep 2.4/5.8 GHz — kanały DJI\n> Krok 2: Wykryto: DJI OcuSync 2.4GHz -65dBm\n> Krok 3: TDOA — szacowana pozycja: X:45m Y:120m\n> Krok 4: Fingerprint — DJI Mavic 3 (94.2% pewność)\n> Krok 5: Selective jammer gotowy (czekaj na rozkaz)\n> Status: DRON ZLOKALIZOWANY',
+  intercept:'> Scenariusz: Przechwycenie komunikacji ISM\n> Krok 1: Sweep 433MHz — wykryto OOK 1024baud\n> Krok 2: IQ Record START (SigMF, 60s)\n> Krok 3: Protocol Reverser — Manchester encoding, CRC-8\n> Krok 4: Dekoder custom zbudowany\n> Krok 5: 12 ramek zdekodowanych — DevID: 0xA1B2C3\n> Status: PRZECHWYT ZAKOŃCZONY',
+};
+function rotateQuote(){
+  const q=SUN_QUOTES[Math.floor(Math.random()*SUN_QUOTES.length)];
+  const box=document.getElementById('quoteBox');
+  if(box){ box.style.opacity=0; setTimeout(()=>{ document.getElementById('quoteText').textContent=q.pl; document.getElementById('quoteCtx').textContent='Kontekst RF: '+q.ctx; box.style.opacity=1; },300); }
+}
+function renderSunChapters(){
+  const box=document.getElementById('sunChapterList'); if(!box)return;
+  box.innerHTML=SUN_CHAPTERS.map(c=>`
+    <div class="sun-chapter">
+      <span class="ch-num">${c.num}.</span>
+      <div><b>${c.title}</b><br><span class="mini-label">${c.rf}</span></div>
+    </div>`).join('');
+}
+function renderSunRules(){
+  const box=document.getElementById('sunRulesList'); if(!box)return;
+  box.innerHTML=SUN_RULES.map(r=>`<div class="rule-item"><span>${r}</span></div>`).join('');
+}
+function runScenario(){
+  const sel=document.getElementById('scenarioSelect').value;
+  const box=document.getElementById('scenarioOutput'); if(!box||!sel)return;
+  box.textContent='';
+  const text=SCENARIOS[sel]||'';
+  let i=0;
+  const interval=setInterval(()=>{ if(i>=text.length){ clearInterval(interval); return; } box.textContent+=text[i]; box.scrollTop=box.scrollHeight; i++; },15);
+  addOpLog('SCENARIO: '+sel);
+}
+</script>
+
+<script>
+/* ======================= STATS ======================= */
+let snrVal=24.5;
+function statsTick(){
+  if(!measEnabled) return;
+  snrVal+=(Math.random()-0.5)*1.5; snrVal=Math.max(5,Math.min(45,snrVal));
+  document.getElementById('snrVal').textContent=snrVal.toFixed(1)+'dB';
+  snrHistBuf.push(snrVal); if(snrHistBuf.length>60) snrHistBuf.shift();
+  statPkt+=Math.floor(Math.random()*8);
+  document.getElementById('pktVal').textContent=statPkt;
+  document.getElementById('latVal').textContent=(1.5+Math.random()*6).toFixed(1)+'ms';
+  document.getElementById('spsVal').textContent=(0.5+Math.random()*9.5).toFixed(2)+' MSp/s';
+  document.getElementById('clockVal').textContent=new Date().toLocaleTimeString('pl-PL');
+  if(recOn){
+    const maxMb=parseFloat(document.getElementById('iqMaxMb').value)||512;
+    recProgress+=Math.random()*0.8;
+    if(recProgress>=maxMb){ recProgress=0; toggleRec(); addLog('IQ Rec: limit MB.'); }
+    const pct=Math.min(100,recProgress/maxMb*100);
+    document.getElementById('iqRecBar').style.width=pct+'%';
+    document.getElementById('iqRecMbLbl').textContent=recProgress.toFixed(1)+' / '+maxMb+' MB';
+  }
+  // temp
+  const devT=document.getElementById('devTemp');
+  if(devT&&devT.textContent!=='--°C') devT.textContent=(parseFloat(devT.textContent)+(Math.random()-0.5)*0.3).toFixed(1)+'°C';
+}
+
+/* ======================= INIT ======================= */
+function initApp(){
+  renderPresets(); updateFreqDisplay(); updateGainLabels();
+  renderDefenseRules(); renderKnownProtocols(); renderBandPlan();
+  renderSunChapters(); renderSunRules(); rotateQuote();
+  renderAudioChannels();
+  renderMissions(); renderTargets(); renderOpsecList();
+  renderWhitelist(); renderBlacklist();
+
+  specCanvas=document.getElementById('specCanvas'); specCtx=specCanvas?specCanvas.getContext('2d'):null;
+  wfCanvas=document.getElementById('waterfallCanvas'); wfCtx=wfCanvas?wfCanvas.getContext('2d'):null;
+  iqCanvas2=document.getElementById('iqCanvas'); iqCtx=iqCanvas2?iqCanvas2.getContext('2d'):null;
+  snrHistCanvas2=document.getElementById('snrHistCanvas'); snrHistCtx=snrHistCanvas2?snrHistCanvas2.getContext('2d'):null;
+  radarCanvas2=document.getElementById('radarCanvas'); radarCtx=radarCanvas2?radarCanvas2.getContext('2d'):null;
+  anomCanvas2=document.getElementById('anomCanvas'); anomCtx=anomCanvas2?anomCanvas2.getContext('2d'):null;
+  anomTimeCanvas=document.getElementById('anomTimelineCanvas'); anomTimeCtx=anomTimeCanvas?anomTimeCanvas.getContext('2d'):null;
+  sigmapCanvas2=document.getElementById('sigmapCanvas'); sigmapCtx=sigmapCanvas2?sigmapCanvas2.getContext('2d'):null;
+  adsbCanvas=document.getElementById('adsbRadar'); adsbCtx=adsbCanvas?adsbCanvas.getContext('2d'):null;
+  sweepCanvas2=document.getElementById('sweepCanvas'); sweepCtx=sweepCanvas2?sweepCanvas2.getContext('2d'):null;
+  audioWaveCanvas2=document.getElementById('audioWaveCanvas'); audioWaveCtx=audioWaveCanvas2?audioWaveCanvas2.getContext('2d'):null;
+  audioSpecCanvas2=document.getElementById('audioSpecCanvas'); audioSpecCtx=audioSpecCanvas2?audioSpecCanvas2.getContext('2d'):null;
+  hopCanvas2=document.getElementById('hopCanvas'); hopCtx=hopCanvas2?hopCanvas2.getContext('2d'):null;
+  sigTimeCanvas2=document.getElementById('sigTimeline'); sigTimeCtx=sigTimeCanvas2?sigTimeCanvas2.getContext('2d'):null;
+  heatCanvas2=document.getElementById('heatmapCanvas'); heatCtx=heatCanvas2?heatCanvas2.getContext('2d'):null;
+
+  resizeAllCanvases();
+  window.addEventListener('resize',resizeAllCanvases);
+
+  requestAnimationFrame(animLoop);
+  requestAnimationFrame(drawThreatRadar);
+  requestAnimationFrame(drawAnomSpectrum);
+  requestAnimationFrame(drawSigMap);
+  requestAnimationFrame(drawAdsbRadar);
+  requestAnimationFrame(drawSweepCanvas);
+  requestAnimationFrame(drawAudioWave);
+  requestAnimationFrame(drawAudioSpec);
+  requestAnimationFrame(drawHopDetector);
+  requestAnimationFrame(drawSigTimeline);
+
+  drawAnomTimeline();
+  drawHeatmap();
+  setInterval(drawAnomTimeline, 30000);
+  setInterval(drawHeatmap, 60000);
+
+  setInterval(statsTick, 120);
+  setInterval(decoderTick, 600);
+  setInterval(()=>{ if(measEnabled){ renderSigintDb(); updateFingerprinter(); } }, 350);
+  setInterval(()=>{ if(measEnabled) updateShield(); }, 220);
+  setInterval(()=>{ if(measEnabled) pushAlert(); }, 2200);
+  setInterval(()=>{ if(measEnabled) scannerTick(); }, 180);
+  setInterval(()=>{ if(measEnabled) sweepTick(); }, 100);
+  setInterval(rotateQuote, 5000);
+  setInterval(()=>{
+    anomTimeData[new Date().getHours()]++;
+    if(measEnabled) drawAnomTimeline();
+  }, 10000);
+
+  addLog('<b style="color:#58a6ff">RF Imperium v5.0 MAX</b> — <span style="color:var(--green)">10 zakładek, system zainicjalizowany.</span>');
+  addOpLog('SYSTEM INIT: RF Imperium v5.0 MAX');
+}
+document.addEventListener('DOMContentLoaded',initApp);
+</script>
+</body>
+</html>
