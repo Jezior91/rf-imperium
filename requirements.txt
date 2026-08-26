@@ -1,0 +1,16 @@
+PyQt6>=6.5.0
+pyqtgraph>=0.13.3
+numpy>=1.24.0
+scipy>=1.11.0
+# Optional — install for full functionality:
+# SoapySDR         # HackRF SDR backend (Windows installer)
+# pyvisa>=1.13.0   # SCPI/VISA (SpecAn + SigGen)
+# pyvisa-py        # Pure-Python VISA backend (no NI VISA needed)
+# openai>=1.0.0    # GPT AI classification
+# sounddevice      # Audio output for AM/FM demod
+# soundfile        # WAV export
+# reportlab        # PDF reports
+# scikit-learn     # Local AI classifier
+# joblib           # Local AI model persistence
+# websockets       # Web dashboard
+# sigmf            # SigMF IQ file format
