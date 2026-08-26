@@ -18,7 +18,7 @@ from src.ui.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    app.setApplicationName("RF Imperium v4.0")
+    app.setApplicationName("RF Imperium v5.0 MAX")
     app.setOrganizationName("RF Imperium")
     
     # High DPI
