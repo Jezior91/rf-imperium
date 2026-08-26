@@ -1,6 +1,6 @@
 @echo off
 echo ============================================
-echo  RF Imperium v4.0 — Windows Installer
+echo  RF Imperium v5.0 MAX — Windows Installer
 echo ============================================
 echo.
 

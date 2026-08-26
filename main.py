@@ -1,4 +1,4 @@
-"""RF Imperium v4.0 — Entry Point"""
+"""RF Imperium v5.0 MAX — Entry Point"""
 import sys
 import os
 

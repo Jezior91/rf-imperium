@@ -1,6 +1,6 @@
 @echo off
-title RF Imperium v4.0 DEBUG
-echo === RF Imperium v4.0 DEBUG MODE ===
+title RF Imperium v5.0 MAX DEBUG
+echo === RF Imperium v5.0 MAX DEBUG MODE ===
 echo.
 echo Python version:
 python --version
